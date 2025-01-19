@@ -2,16 +2,6 @@ module Main where
 
 data Value = Nil | Number Int | Pair Value Value
 
-minPair :: Value -> String
-minPair (Pair a Nil) = show a
-minPair (Pair a b) =
-  concat
-    [ show a
-    , "."
-    , show b
-    ]
-minPair _ = ""
-
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
