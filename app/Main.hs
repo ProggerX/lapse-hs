@@ -1,19 +1,20 @@
 module Main where
 
-newtype Listik a = Listik (a, Maybe (Listik a))
+data Value = Nil | Number Int | Pair Value Value
 
-lstToPrint :: (Show a) => Listik a -> String
-lstToPrint (Listik (x, Nothing)) = show x
-lstToPrint (Listik (x, Just xs)) = show x ++ lstToPrint xs
-
-lstToPrint' :: (Show a) => Listik a -> Int -> String
-lstToPrint' (Listik (x, Nothing)) n = "(" ++ show x ++ " . ()" ++ replicate n ')'
-lstToPrint' (Listik (x, Just xs)) n = "(" ++ show x ++ " . " ++ lstToPrint' xs (n + 1)
-
-printList :: (Show a) => Listik a -> IO ()
-printList lst = putStrLn $ lstToPrint' lst 0
+instance Show Value where
+  show Nil = "()"
+  show (Number n) = show n
+  show (Pair a b) =
+    concat
+      [ "("
+      , show a
+      , " . "
+      , show b
+      , ")"
+      ]
 
 main :: IO ()
 main = do
-  let list = Listik (1, Just (Listik (2, Just (Listik (3, Nothing))))) :: Listik Int
-  printList list
+  let lst = Pair (Number 1) (Pair (Number 2) (Pair (Number 3) Nil))
+  print lst
