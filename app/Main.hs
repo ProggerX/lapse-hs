@@ -17,6 +17,8 @@ infixTests =
   , Pair (Name "+") (Pair (Number 1) (Pair (Number 2) (Number 3)))
   , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Number 3))))
   , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Number 3))))
+  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Name "*") (Pair (Number 3) (Number 4))))))
+  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Name "+") (Pair (Number 3) (Number 4))))))
   ]
 
 main :: IO ()

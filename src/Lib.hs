@@ -55,7 +55,7 @@ toInfix (Pair (Name s) (Pair v1 v2)) =
             $ toInfix
               v2
         Just (Pair _ _) -> toInfix $ Pair (Name s) v2
-        _ -> show v2
+        _ -> toInfix v2
     ]
 toInfix v = show v
 
