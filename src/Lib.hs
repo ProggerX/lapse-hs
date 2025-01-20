@@ -37,26 +37,35 @@ instance Show Value where
   show pr@(Pair _ _) = surround $ show' pr
 
 toInfix :: Value -> String
-toInfix (Pair (Name _) (Pair v1 Nil)) = toInfix v1
-toInfix (Pair (Name s) (Pair v1 v2)) =
+toInfix (Pair x Nil) = toInfix x
+toInfix (Pair (Name s) (Pair v1 v2@(Pair (Pair _ _) Nil))) =
   concat
-    [ toInfix v1
+    [ show v1
     , " "
     , s
     , " "
-    , case cast v2 of
-        Just (Pair (Name _) _) ->
-          ( case s of
-              "*" -> surround
-              "/" -> surround
-              "+" -> id
-              "-" -> id
-              _ -> undefined
-          )
-            $ toInfix
-              v2
-        Just (Pair _ _) -> toInfix $ Pair (Name s) v2
-        _ -> toInfix v2
+    , ( case s of
+          "*" -> surround
+          "/" -> surround
+          _ -> id
+      )
+        $ toInfix v2
+    ]
+toInfix (Pair (Name s) (Pair v1 v2@(Pair _ Nil))) =
+  concat
+    [ show v1
+    , " "
+    , s
+    , " "
+    , toInfix v2
+    ]
+toInfix (Pair nm@(Name s) (Pair v1 v2@(Pair _ _))) =
+  concat
+    [ show v1
+    , " "
+    , s
+    , " "
+    , toInfix $ Pair nm v2
     ]
 toInfix v = show v
 

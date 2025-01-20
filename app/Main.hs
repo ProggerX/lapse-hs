@@ -15,10 +15,10 @@ infixTests :: [Value]
 infixTests =
   [ list [Name "+", Number 1, Number 2]
   , list [Name "+", Number 1, Number 2, Number 3]
-  , list [Name "+", Number 1, Name "*", Number 2, Number 3]
-  , list [Name "*", Number 1, Name "+", Number 2, Number 3]
-  , list [Name "+", Number 1, Name "*", Number 2, Number 3, Number 4]
-  , list [Name "*", Number 1, Name "+", Number 2, Number 3, Number 4]
+  , list [Name "+", Number 1, list [Name "*", Number 2, Number 3]]
+  , list [Name "*", Number 1, list [Name "+", Number 2, Number 3]]
+  , list [Name "+", Number 1, list [Name "*", Number 2, Number 3, Number 4]]
+  , list [Name "*", Number 1, list [Name "+", Number 2, Number 3, Number 4]]
   ]
 
 main :: IO ()
