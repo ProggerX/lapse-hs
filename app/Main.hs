@@ -13,12 +13,12 @@ tests =
 
 infixTests :: [Value]
 infixTests =
-  [ Pair (Name "+") (Pair (Number 1) (Number 2))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Number 2) (Number 3)))
-  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Number 3))))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Number 3))))
-  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Name "*") (Pair (Number 3) (Number 4))))))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Name "+") (Pair (Number 3) (Number 4))))))
+  [ Pair (Name "+") (Pair (Number 1) (Pair (Number 2) Nil))
+  , Pair (Name "+") (Pair (Number 1) (Pair (Number 2) (Pair (Number 3) Nil)))
+  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Number 3) Nil))))
+  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Number 3) Nil))))
+  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Name "*") (Pair (Number 3) (Pair (Number 4) Nil))))))
+  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Name "+") (Pair (Number 3) (Pair (Number 4) Nil))))))
   ]
 
 main :: IO ()

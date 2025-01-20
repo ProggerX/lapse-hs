@@ -14,29 +14,30 @@ surround s = "(" ++ s ++ ")"
 surround' :: String -> String
 surround' = init . tail
 
+show' :: Value -> String
+show' (Pair a Nil) = show' a
+show' (Pair a pr@(Pair _ _)) =
+  concat
+    [ show a
+    , " "
+    , show' pr
+    ]
+show' (Pair a b) =
+  concat
+    [ show a
+    , " . "
+    , show b
+    ]
+show' x = show x
+
 instance Show Value where
   show Nil = "()"
   show (Number n) = show n
   show (Name s) = s
-  show (Pair a Nil) = surround $ show a
-  show (Pair a (Pair b c)) =
-    concat
-      [ "("
-      , show a
-      , " "
-      , surround' $ show (Pair b c)
-      , ")"
-      ]
-  show (Pair a b) =
-    concat
-      [ "("
-      , show a
-      , " . "
-      , show b
-      , ")"
-      ]
+  show pr@(Pair _ _) = surround $ show' pr
 
 toInfix :: Value -> String
+toInfix (Pair (Name _) (Pair v1 Nil)) = toInfix v1
 toInfix (Pair (Name s) (Pair v1 v2)) =
   concat
     [ toInfix v1
