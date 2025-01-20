@@ -8,9 +8,6 @@ data Value
   | Name String
   | Pair Value Value
 
-class IsValue a where
-  toValue :: a -> Value
-
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
@@ -39,9 +36,6 @@ instance Show Value where
   show (Name s) = s
   show pr@(Pair _ _) = surround $ show' pr
 
-instance IsValue Int where
-  toValue = Number
-
 toInfix :: Value -> String
 toInfix (Pair (Name _) (Pair v1 Nil)) = toInfix v1
 toInfix (Pair (Name s) (Pair v1 v2)) =
@@ -69,5 +63,5 @@ toInfix v = show v
 printInfix :: Value -> IO ()
 printInfix = putStrLn . toInfix
 
-createList :: (IsValue a) => [a] -> Value
-createList = foldr (Pair . toValue) Nil
+list :: [Value] -> Value
+list = foldr Pair Nil

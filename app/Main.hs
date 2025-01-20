@@ -4,7 +4,7 @@ import Lib
 
 tests :: [Value]
 tests =
-  [ Pair (Number 1) (Pair (Number 2) (Number 3))
+  [ list $ map Number [1, 2, 3]
   , Pair (Pair (Number 1) (Number 2)) (Number 3)
   , Pair (Pair (Number 1) (Number 2)) (Pair (Number 3) Nil)
   , Number 5
@@ -13,12 +13,12 @@ tests =
 
 infixTests :: [Value]
 infixTests =
-  [ Pair (Name "+") (Pair (Number 1) (Pair (Number 2) Nil))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Number 2) (Pair (Number 3) Nil)))
-  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Number 3) Nil))))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Number 3) Nil))))
-  , Pair (Name "*") (Pair (Number 1) (Pair (Name "+") (Pair (Number 2) (Pair (Name "*") (Pair (Number 3) (Pair (Number 4) Nil))))))
-  , Pair (Name "+") (Pair (Number 1) (Pair (Name "*") (Pair (Number 2) (Pair (Name "+") (Pair (Number 3) (Pair (Number 4) Nil))))))
+  [ list [Name "+", Number 1, Number 2]
+  , list [Name "+", Number 1, Number 2, Number 3]
+  , list [Name "+", Number 1, Name "*", Number 2, Number 3]
+  , list [Name "*", Number 1, Name "+", Number 2, Number 3]
+  , list [Name "+", Number 1, Name "*", Number 2, Number 3, Number 4]
+  , list [Name "*", Number 1, Name "+", Number 2, Number 3, Number 4]
   ]
 
 main :: IO ()
