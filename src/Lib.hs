@@ -1,7 +1,5 @@
 module Lib where
 
-import Data.Data (cast)
-
 data Value
   = Nil
   | Number Int
@@ -10,9 +8,6 @@ data Value
 
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
-
-surround' :: String -> String
-surround' = init . tail
 
 show' :: Value -> String
 show' (Pair a Nil) = show' a
