@@ -19,6 +19,17 @@ library
       base ^>=4.18.2.1
   default-language: GHC2021
 
+test-suite test
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Main.hs
+  build-depends:
+      base ^>=4.18.2.1
+      , tasty
+      , tasty-hunit
+      , lapse-hs
+  default-language: GHC2021
+
 executable lapse-hs
     import:           warnings
     main-is:          Main.hs

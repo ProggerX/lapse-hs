@@ -11,18 +11,11 @@ surround s = "(" ++ s ++ ")"
 
 show' :: Value -> String
 show' (Pair a Nil) = show' a
-show' (Pair a pr@(Pair _ _)) =
-  concat
-    [ show a
-    , " "
-    , show' pr
-    ]
 show' (Pair a b) =
-  concat
-    [ show a
-    , " . "
-    , show b
-    ]
+  show a ++ " " ++ f b
+ where
+  f x@(Pair _ _) = show' x
+  f x = ". " ++ show x
 show' x = show x
 
 instance Show Value where
@@ -33,35 +26,25 @@ instance Show Value where
 
 toInfix :: Value -> String
 toInfix (Pair x Nil) = toInfix x
-toInfix (Pair (Name s) (Pair v1 v2@(Pair (Pair _ _) Nil))) =
-  concat
-    [ show v1
-    , " "
-    , s
-    , " "
-    , ( case s of
-          "*" -> surround
-          "/" -> surround
-          _ -> id
-      )
-        $ toInfix v2
-    ]
-toInfix (Pair (Name s) (Pair v1 v2@(Pair _ Nil))) =
-  concat
-    [ show v1
-    , " "
-    , s
-    , " "
-    , toInfix v2
-    ]
 toInfix (Pair nm@(Name s) (Pair v1 v2@(Pair _ _))) =
   concat
     [ show v1
     , " "
     , s
     , " "
-    , toInfix $ Pair nm v2
+    , f v2
     ]
+ where
+  f (Pair (Pair _ _) Nil) =
+    ( case s of
+        "*" -> surround
+        "/" -> surround
+        _ -> id
+    )
+      $ toInfix v2
+  f (Pair _ Nil) = toInfix v2
+  f (Pair _ _) = toInfix $ Pair nm v2
+  f _ = undefined
 toInfix v = show v
 
 printInfix :: Value -> IO ()
