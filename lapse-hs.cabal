@@ -12,7 +12,7 @@ common warnings
 library
   import:           warnings
   exposed-modules:
-      Lib
+      Lapse
   hs-source-dirs:
       src
   build-depends:
