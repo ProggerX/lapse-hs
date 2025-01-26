@@ -13,6 +13,10 @@ library
   import:           warnings
   exposed-modules:
       Lapse
+      , Lapse.Infix
+      , Lapse.Operators
+      , Lapse.Cond
+      , Lapse.Eval
   hs-source-dirs:
       src
   build-depends:
