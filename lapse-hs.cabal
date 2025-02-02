@@ -17,10 +17,12 @@ library
       , Lapse.Operators
       , Lapse.Cond
       , Lapse.Eval
+      , Lapse.Scopes
   hs-source-dirs:
       src
   build-depends:
       base ^>=4.18.2.1
+      , containers
   default-language: GHC2021
 
 test-suite test
