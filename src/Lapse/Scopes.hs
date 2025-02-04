@@ -35,18 +35,24 @@ changeValue k v = do
     (s : ss) -> put (Map.insert k v s : ss)
     _ -> undefined
 
+getValue' :: String -> Scopes -> Value
+getValue' k (s : ss) = case s !? k of
+  Nothing -> getValue' k ss
+  Just x -> x
+getValue' _ [] = error "getValue: no such key!"
+
 getValue :: (MonadState Scopes m) => String -> m Value
 getValue k = do
   st <- get
   case st of
     (s : ss) -> case s !? k of
-      Nothing -> put ss >> getValue k
+      Nothing -> pure $ getValue' k ss
       Just x -> pure x
-    _ -> undefined
+    _ -> error "Error in getValue"
 
 lset :: (MonadState Scopes m) => Value -> m ()
 lset (Pair (Name k) (Pair v Nil)) = changeValue k v
-lset _ = undefined
+lset _ = error "Wrong argument for set"
 
 llet' :: (MonadState Scopes m) => Value -> m Value
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
@@ -55,7 +61,7 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
   changeValue k v
   llet' (Pair other c)
-llet' _ = undefined
+llet' _ = error "Wrong argument for let"
 
 llet :: (MonadState Scopes m) => Value -> m Value
 llet v = do
@@ -66,7 +72,6 @@ llet v = do
 
 test :: (MonadState Scopes m, MonadIO m) => m ()
 test = do
-  liftIO $ putStrLn "starting..."
   lset $ list [Name "a", Number 4]
   idk <- llet $ list [list [list [Name "b", Number 5], list [Name "c", Number 6]], Number 123]
   liftIO $ print idk
