@@ -43,5 +43,6 @@ executable lapse-hs
     build-depends:
         base ^>=4.18.2.1
         , lapse-hs
+        , mtl
     hs-source-dirs:   app
     default-language: GHC2021

@@ -1,16 +1,16 @@
 module Lapse.Scopes where
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.State (MonadState, StateT, get, gets, put)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.State (MonadState, StateT, evalStateT, get, gets, put)
 import Data.Map.Strict (Map, (!?))
 import Data.Map.Strict qualified as Map
-import Lapse (Value (..), list)
+import Lapse (Value (..))
 import Lapse.Eval (eval)
 
 type Scope = Map String Value
 type Scopes = [Scope]
 
-newtype ScopeM m a = ScopeM {runScopeM :: StateT Scopes m a}
+newtype ScopeM a = ScopeM {runScopeM :: StateT Scopes IO a}
   deriving
     ( Functor
     , Applicative
@@ -22,13 +22,13 @@ newtype ScopeM m a = ScopeM {runScopeM :: StateT Scopes m a}
 initState :: Scopes
 initState = [Map.empty]
 
-newScope :: (MonadState Scopes m) => m ()
+newScope :: ScopeM ()
 newScope = get >>= put . (Map.empty :)
 
-dropScope :: (MonadState Scopes m) => m ()
+dropScope :: ScopeM ()
 dropScope = get >>= put . tail
 
-changeValue :: (MonadState Scopes m) => String -> Value -> m ()
+changeValue :: String -> Value -> ScopeM ()
 changeValue k v = do
   st <- get
   case st of
@@ -41,14 +41,14 @@ getValue' k (s : ss) = case s !? k of
   Just x -> x
 getValue' _ [] = error "getValue: no such key!"
 
-getValue :: (MonadState Scopes m) => String -> m Value
+getValue :: String -> ScopeM Value
 getValue k = gets (getValue' k)
 
-lset :: (MonadState Scopes m) => Value -> m ()
+lset :: Value -> ScopeM ()
 lset (Pair (Name k) (Pair v Nil)) = changeValue k v
 lset _ = error "Wrong argument for set"
 
-llet' :: (MonadState Scopes m) => Value -> m Value
+llet' :: Value -> ScopeM Value
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
   changeValue k v
   pure $ eval val
@@ -57,20 +57,12 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
   llet' (Pair other c)
 llet' _ = error "Wrong argument for let"
 
-llet :: (MonadState Scopes m) => Value -> m Value
+llet :: Value -> ScopeM Value
 llet v = do
   newScope
   res <- llet' v
   dropScope
   pure res
 
-test :: (MonadState Scopes m, MonadIO m) => m ()
-test = do
-  lset $ list [Name "a", Number 4]
-  lset $ list [Name "b", Number 5]
-  liftIO $ putStrLn "enter key to lookup"
-  n <- liftIO getLine
-  g <- getValue n
-  liftIO $ print g
-  idk <- llet $ list [list [list [Name "b", Number 5], list [Name "c", Number 6]], Number 123]
-  liftIO $ print idk
+actuallyRun :: ScopeM a -> IO a
+actuallyRun = (`evalStateT` initState) . runScopeM
