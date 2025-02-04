@@ -1,7 +1,7 @@
 module Lapse.Scopes where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.State (MonadState, StateT, get, put)
+import Control.Monad.State (MonadState, StateT, get, gets, put)
 import Data.Map.Strict (Map, (!?))
 import Data.Map.Strict qualified as Map
 import Lapse (Value (..), list)
@@ -42,13 +42,7 @@ getValue' k (s : ss) = case s !? k of
 getValue' _ [] = error "getValue: no such key!"
 
 getValue :: (MonadState Scopes m) => String -> m Value
-getValue k = do
-  st <- get
-  case st of
-    (s : ss) -> case s !? k of
-      Nothing -> pure $ getValue' k ss
-      Just x -> pure x
-    _ -> error "Error in getValue"
+getValue k = gets (getValue' k)
 
 lset :: (MonadState Scopes m) => Value -> m ()
 lset (Pair (Name k) (Pair v Nil)) = changeValue k v
@@ -73,5 +67,7 @@ llet v = do
 test :: (MonadState Scopes m, MonadIO m) => m ()
 test = do
   lset $ list [Name "a", Number 4]
+  g <- getValue "a"
+  liftIO $ print g
   idk <- llet $ list [list [list [Name "b", Number 5], list [Name "c", Number 6]], Number 123]
   liftIO $ print idk
