@@ -67,7 +67,10 @@ llet v = do
 test :: (MonadState Scopes m, MonadIO m) => m ()
 test = do
   lset $ list [Name "a", Number 4]
-  g <- getValue "a"
+  lset $ list [Name "b", Number 5]
+  liftIO $ putStrLn "enter key to lookup"
+  n <- liftIO getLine
+  g <- getValue n
   liftIO $ print g
   idk <- llet $ list [list [list [Name "b", Number 5], list [Name "c", Number 6]], Number 123]
   liftIO $ print idk
