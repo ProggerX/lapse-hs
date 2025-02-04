@@ -23,6 +23,7 @@ library
   build-depends:
       base ^>=4.18.2.1
       , containers
+      , mtl
   default-language: GHC2021
 
 test-suite test
