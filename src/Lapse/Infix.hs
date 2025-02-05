@@ -1,6 +1,6 @@
 module Lapse.Infix where
 
-import Lapse (Value (..), surround)
+import Lapse.Types (Value (..), surround)
 
 toInfix :: Value -> String
 toInfix (Pair x Nil) = toInfix x

@@ -18,6 +18,7 @@ library
       , Lapse.Cond
       , Lapse.Eval
       , Lapse.Scopes
+      , Lapse.Types
   hs-source-dirs:
       src
   build-depends:

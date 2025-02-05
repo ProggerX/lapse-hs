@@ -1,6 +1,6 @@
 module Lapse.Eval where
 
-import Lapse (Value (..))
+import Lapse.Types (Value (..))
 
 eval :: Value -> Value
 eval = id

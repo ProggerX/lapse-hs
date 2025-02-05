@@ -1,7 +1,7 @@
 module Lapse.Cond where
 
-import Lapse (Value (..))
 import Lapse.Eval (eval)
+import Lapse.Types (Value (..))
 
 cond :: Value -> Value
 cond Nil = Nil

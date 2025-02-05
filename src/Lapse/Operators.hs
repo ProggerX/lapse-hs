@@ -1,7 +1,6 @@
 module Lapse.Operators where
 
-import Lapse (Value (..))
-import Lapse.Scopes (ScopeM)
+import Lapse.Types (ScopeM, Value (..))
 
 ladd' :: Value -> Value
 ladd' Nil = Number 0

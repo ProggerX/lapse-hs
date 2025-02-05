@@ -1,15 +1,10 @@
 module Lapse.Scopes where
 
-import Control.Monad.State (State, get, gets, put)
-import Data.Map.Strict (Map, (!?))
+import Control.Monad.State (get, gets, put)
+import Data.Map.Strict ((!?))
 import Data.Map.Strict qualified as Map
-import Lapse (Value (..))
 import Lapse.Eval (eval)
-
-type Scope = Map String Value
-type Scopes = [Scope]
-
-type ScopeM a = State Scopes a
+import Lapse.Types (ScopeM, Scopes, Value (..))
 
 initState :: Scopes
 initState = [Map.empty]
