@@ -6,12 +6,18 @@ import Data.Map.Strict (Map)
 type Scope = Map String Value
 type Scopes = [Scope]
 
+type Func = (Value -> ScopeM Value)
+
 data Value
   = Nil
   | Number Int
   | Name String
   | Pair Value Value
-  | Function (Value -> ScopeM Value)
+  | Function Func
+  deriving (Eq)
+
+instance Eq Func where
+  _ == _ = error "Can't compare functions"
 
 show' :: Value -> String
 show' (Pair a Nil) = show' a
@@ -28,10 +34,6 @@ instance Show Value where
   show (Name s) = s
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
-
-instance Eq Value where
-  (==) (Function _) = undefined
-  (==) x = (==) x
 
 surround :: String -> String
 surround s = "(" ++ s ++ ")"

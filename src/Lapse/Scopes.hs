@@ -4,7 +4,7 @@ import Control.Monad.State (get, gets, put)
 import Data.Map.Strict ((!?))
 import Data.Map.Strict qualified as Map
 import Lapse.Eval (eval)
-import Lapse.Types (ScopeM, Scopes, Value (..))
+import Lapse.Types (Func, ScopeM, Scopes, Value (..))
 
 initState :: Scopes
 initState = [Map.empty]
@@ -35,7 +35,7 @@ lset :: Value -> ScopeM ()
 lset (Pair (Name k) (Pair v Nil)) = changeValue k v
 lset _ = error "Wrong argument for set"
 
-llet' :: Value -> ScopeM Value
+llet' :: Func
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
   changeValue k v
   pure $ eval val
@@ -44,7 +44,7 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
   llet' (Pair other c)
 llet' _ = error "Wrong argument for let"
 
-llet :: Value -> ScopeM Value
+llet :: Func
 llet v = do
   newScope
   res <- llet' v
