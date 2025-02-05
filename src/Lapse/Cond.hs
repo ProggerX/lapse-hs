@@ -1,9 +1,14 @@
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Cond where
 
+import Lapse (pureVal)
 import Lapse.Eval (eval)
-import Lapse.Types (Value (..))
+import Lapse.Types (Func, Value (..))
 
-cond :: Value -> Value
-cond Nil = Nil
-cond (Pair (Pair c (Pair r Nil)) els) = if eval c /= Nil then eval r else cond els
-cond _ = undefined
+cond :: Func
+cond = \case
+  Nil -> pure Nil
+  (Pair (Pair c (Pair r Nil)) els) -> if pureVal (eval c) /= Nil then eval r else cond els
+  _ -> undefined

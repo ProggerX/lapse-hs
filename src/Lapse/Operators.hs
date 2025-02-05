@@ -1,64 +1,54 @@
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Operators where
 
+import Lapse (impureFunc, impureFunc')
 import Lapse.Types (Func, Value (..))
 
-ladd' :: Value -> Value
-ladd' Nil = Number 0
-ladd' (Pair (Number a) b) =
-  Number
-    ( a + case ladd' b of
-        Number x -> x
-        _ -> undefined
-    )
-ladd' _ = undefined
-
 ladd :: Func
-ladd = pure . ladd'
-
-lmul' :: Value -> Value
-lmul' Nil = Number 1
-lmul' (Pair (Number a) b) =
-  Number
-    ( a * case lmul' b of
-        Number x -> x
-        _ -> undefined
-    )
-lmul' _ = undefined
+ladd = impureFunc' \f -> \case
+  Nil -> Number 0
+  (Pair (Number a) b) ->
+    Number
+      ( a + case f b of
+          Number x -> x
+          _ -> undefined
+      )
+  _ -> undefined
 
 lmul :: Func
-lmul = pure . lmul'
-
-lsub' :: Value -> Value
-lsub' (Pair (Number a) (Pair (Number b) Nil)) = Number $ a - b
-lsub' _ = undefined
+lmul = impureFunc' \f -> \case
+  Nil -> Number 1
+  (Pair (Number a) b) ->
+    Number
+      ( a * case f b of
+          Number x -> x
+          _ -> undefined
+      )
+  _ -> undefined
 
 lsub :: Func
-lsub = pure . lsub'
-
-ldiv' :: Value -> Value
-ldiv' (Pair (Number a) (Pair (Number b) Nil)) = Number $ div a b
-ldiv' _ = undefined
+lsub = impureFunc \case
+  (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
+  _ -> undefined
 
 ldiv :: Func
-ldiv = pure . ldiv'
-
-lgrt' :: Value -> Value
-lgrt' (Pair (Number a) (Pair (Number b) Nil)) = if a > b then Number 1 else Nil
-lgrt' _ = undefined
+ldiv = impureFunc \case
+  (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
+  _ -> undefined
 
 lgrt :: Func
-lgrt = pure . lgrt'
-
-llss' :: Value -> Value
-llss' (Pair (Number a) (Pair (Number b) Nil)) = if a < b then Number 1 else Nil
-llss' _ = undefined
+lgrt = impureFunc \case
+  (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
+  _ -> undefined
 
 llss :: Func
-llss = pure . llss'
-
-leql' :: Value -> Value
-leql' (Pair a (Pair b Nil)) = if a == b then Number 1 else Nil
-leql' _ = undefined
+llss = impureFunc \case
+  (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
+  _ -> undefined
 
 leql :: Func
-leql = pure . leql'
+leql = impureFunc \case
+  (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
+  _ -> undefined

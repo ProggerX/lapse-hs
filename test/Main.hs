@@ -1,11 +1,11 @@
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
-import Lapse (list, numList)
+import Lapse (list, numList, pureVal)
 import Lapse.Cond (cond)
 import Lapse.Infix (toInfix)
 import Lapse.Operators
-import Lapse.Types (Value (..))
+import Lapse.Types (Func, ScopeM, Value (..))
 
 showTests :: [(Value, String)]
 showTests =
@@ -27,23 +27,23 @@ infixTests =
   , (list [Name "*", Number 1, list [Name "+", Number 2, Number 3, Number 4]], "1 * (2 + 3 + 4)")
   ]
 
-opTests :: [(Value, Value)]
+opTests :: [(ScopeM Value, Value)]
 opTests =
-  [ (ladd' Nil, Number 0)
-  , (lmul' Nil, Number 1)
-  , (ladd' $ numList [1, 2, 3], Number 6)
-  , (lsub' $ numList [5, 3], Number 2)
-  , (lmul' $ numList [1, 2, 3, 4], Number 24)
-  , (ldiv' $ numList [55, 11], Number 5)
-  , (lgrt' $ numList [7, 2], Number 1)
-  , (lgrt' $ numList [2, 7], Nil)
-  , (lgrt' $ numList [5, 5], Nil)
-  , (llss' $ numList [7, 2], Nil)
-  , (llss' $ numList [2, 7], Number 1)
-  , (llss' $ numList [5, 5], Nil)
-  , (leql' $ numList [7, 2], Nil)
-  , (leql' $ numList [2, 7], Nil)
-  , (leql' $ numList [5, 5], Number 1)
+  [ (ladd Nil, Number 0)
+  , (lmul Nil, Number 1)
+  , (ladd $ numList [1, 2, 3], Number 6)
+  , (lsub $ numList [5, 3], Number 2)
+  , (lmul $ numList [1, 2, 3, 4], Number 24)
+  , (ldiv $ numList [55, 11], Number 5)
+  , (lgrt $ numList [7, 2], Number 1)
+  , (lgrt $ numList [2, 7], Nil)
+  , (lgrt $ numList [5, 5], Nil)
+  , (llss $ numList [7, 2], Nil)
+  , (llss $ numList [2, 7], Number 1)
+  , (llss $ numList [5, 5], Nil)
+  , (leql $ numList [7, 2], Nil)
+  , (leql $ numList [2, 7], Nil)
+  , (leql $ numList [5, 5], Number 1)
   ]
 
 condTests :: [(Value, Value)]
@@ -68,8 +68,8 @@ main =
           $ map (\(t, x) -> testCase "test" $ toInfix t @?= x) infixTests
       , testGroup
           "operators"
-          $ map (\(t, x) -> testCase "test" $ t @?= x) opTests
+          $ map (\(t, x) -> testCase "test" $ pureVal t @?= x) opTests
       , testGroup
           "cond"
-          $ map (\(t, x) -> testCase "test" $ cond t @?= x) condTests
+          $ map (\(t, x) -> testCase "test" $ (pureVal . cond) t @?= x) condTests
       ]

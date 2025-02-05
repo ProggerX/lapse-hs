@@ -1,6 +1,6 @@
 module Lapse.Eval where
 
-import Lapse.Types (Value (..))
+import Lapse.Types (Func)
 
-eval :: Value -> Value
-eval = id
+eval :: Func
+eval = pure
