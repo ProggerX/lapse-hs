@@ -1,7 +1,6 @@
 module Lapse.Scopes where
 
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.State (MonadState, StateT, evalStateT, get, gets, put)
+import Control.Monad.State (State, get, gets, put)
 import Data.Map.Strict (Map, (!?))
 import Data.Map.Strict qualified as Map
 import Lapse (Value (..))
@@ -10,14 +9,7 @@ import Lapse.Eval (eval)
 type Scope = Map String Value
 type Scopes = [Scope]
 
-newtype ScopeM a = ScopeM {runScopeM :: StateT Scopes IO a}
-  deriving
-    ( Functor
-    , Applicative
-    , Monad
-    , MonadState Scopes
-    , MonadIO
-    )
+type ScopeM a = State Scopes a
 
 initState :: Scopes
 initState = [Map.empty]
@@ -63,6 +55,3 @@ llet v = do
   res <- llet' v
   dropScope
   pure res
-
-actuallyRun :: ScopeM a -> IO a
-actuallyRun = (`evalStateT` initState) . runScopeM
