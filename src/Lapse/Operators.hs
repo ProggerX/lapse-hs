@@ -3,11 +3,11 @@
 
 module Lapse.Operators where
 
-import Lapse (impureFunc, impureFunc')
+import Lapse (pureFunc, pureFunc')
 import Lapse.Types (Func, Value (..))
 
 ladd :: Func
-ladd = impureFunc' \f -> \case
+ladd = pureFunc' \f -> \case
   Nil -> Number 0
   (Pair (Number a) b) ->
     Number
@@ -18,7 +18,7 @@ ladd = impureFunc' \f -> \case
   _ -> undefined
 
 lmul :: Func
-lmul = impureFunc' \f -> \case
+lmul = pureFunc' \f -> \case
   Nil -> Number 1
   (Pair (Number a) b) ->
     Number
@@ -29,26 +29,26 @@ lmul = impureFunc' \f -> \case
   _ -> undefined
 
 lsub :: Func
-lsub = impureFunc \case
+lsub = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
   _ -> undefined
 
 ldiv :: Func
-ldiv = impureFunc \case
+ldiv = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
   _ -> undefined
 
 lgrt :: Func
-lgrt = impureFunc \case
+lgrt = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
   _ -> undefined
 
 llss :: Func
-llss = impureFunc \case
+llss = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
   _ -> undefined
 
 leql :: Func
-leql = impureFunc \case
+leql = pureFunc \case
   (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
   _ -> undefined

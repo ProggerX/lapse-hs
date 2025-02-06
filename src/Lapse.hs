@@ -11,14 +11,14 @@ list = foldr Pair Nil
 numList :: [Int] -> Value
 numList = list . map Number
 
-impureFunc :: (Value -> Value) -> Func
-impureFunc = (pure .)
+pureFunc :: (Value -> Value) -> Func
+pureFunc = (pure .)
 
-impureFunc' :: ((Value -> Value) -> Value -> Value) -> Func
-impureFunc' = impureFunc . fix
+pureFunc' :: ((Value -> Value) -> Value -> Value) -> Func
+pureFunc' = pureFunc . fix
 
-pureVal :: ScopeM Value -> Value
-pureVal = (`evalState` initState)
+impureVal :: ScopeM Value -> Value
+impureVal = (`evalState` initState)
 
-pureFunc :: Func -> (Value -> Value)
-pureFunc = (pureVal .)
+impureFunc :: Func -> (Value -> Value)
+impureFunc = (impureVal .)
