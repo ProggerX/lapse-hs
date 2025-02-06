@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Scopes where
 
 import Control.Monad.State (get, gets, put)
@@ -16,9 +18,8 @@ dropScope :: ScopeM ()
 dropScope = get >>= put . tail
 
 changeValue :: String -> Value -> ScopeM ()
-changeValue k v = do
-  st <- get
-  case st of
+changeValue k v =
+  get >>= \case
     (s : ss) -> put (Map.insert k v s : ss)
     _ -> undefined
 
