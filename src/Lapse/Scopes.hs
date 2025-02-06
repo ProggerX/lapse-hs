@@ -29,7 +29,7 @@ getValue' k (s : ss) = case s !? k of
 getValue' _ [] = error "getValue: no such key!"
 
 getValue :: String -> ScopeM Value
-getValue k = gets (getValue' k)
+getValue = gets . getValue'
 
 lset :: Value -> ScopeM ()
 lset (Pair (Name k) (Pair v Nil)) = changeValue k v
@@ -45,8 +45,4 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
 llet' _ = error "Wrong argument for let"
 
 llet :: Func
-llet v = do
-  newScope
-  res <- llet' v
-  dropScope
-  pure res
+llet v = newScope *> llet' v <* dropScope
