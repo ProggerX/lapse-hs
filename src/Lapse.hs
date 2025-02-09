@@ -11,6 +11,12 @@ list = foldr Pair Nil
 numList :: [Int] -> Value
 numList = list . map Number
 
+list' :: [Value] -> Value
+list' = Pair (Name "list") . list
+
+numList' :: [Int] -> Value
+numList' = list' . map Number
+
 impureVal :: ScopeM Value -> Value
 impureVal = (`evalState` initState)
 

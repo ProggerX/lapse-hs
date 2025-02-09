@@ -4,7 +4,7 @@
 module Lapse.Operators where
 
 import Data.Function (fix)
-import Lapse.Eval (eval)
+import Lapse.Eval (eval, lmap')
 import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, Value (..))
 
@@ -85,3 +85,15 @@ cond = \case
       Nil -> cond els
       _ -> eval r
   _ -> undefined
+
+lmap :: Func
+lmap (Pair (Function f) (Pair oth Nil)) = lmap' f oth
+lmap (Pair (Macros f) (Pair oth Nil)) = lmap' f oth
+lmap _ = undefined
+
+ldouble :: Func
+ldouble (Number x) = pure $ Number $ x * 2
+ldouble _ = undefined
+
+llist :: Func
+llist = pure

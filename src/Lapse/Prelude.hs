@@ -17,6 +17,9 @@ prelude =
     , ("let", Macros llet)
     , ("set", Macros lset)
     , ("cond", Macros cond)
+    , ("map", Function lmap)
+    , ("double", Function ldouble)
+    , ("list", Function llist)
     ]
 
 initState :: Scopes
