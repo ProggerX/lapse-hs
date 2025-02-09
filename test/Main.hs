@@ -2,7 +2,6 @@ import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
 import Lapse (impureVal, list, numList)
-import Lapse.Cond (cond)
 import Lapse.Infix (toInfix)
 import Lapse.Operators
 import Lapse.Types (Func, ScopeM, Value (..))

@@ -14,6 +14,7 @@ data Value
   | Name String
   | Pair Value Value
   | Function Func
+  | Macros Func
   deriving (Eq)
 
 instance Eq Func where
@@ -34,6 +35,7 @@ instance Show Value where
   show (Name s) = s
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
+  show (Macros _) = "<macros>"
 
 surround :: String -> String
 surround s = "(" ++ s ++ ")"

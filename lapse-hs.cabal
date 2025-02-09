@@ -15,10 +15,10 @@ library
       Lapse
       , Lapse.Infix
       , Lapse.Operators
-      , Lapse.Cond
       , Lapse.Eval
       , Lapse.Scopes
       , Lapse.Types
+      , Lapse.Prelude
   hs-source-dirs:
       src
   build-depends:
