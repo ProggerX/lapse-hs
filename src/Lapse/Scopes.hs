@@ -33,15 +33,15 @@ getValue :: String -> ScopeM Value
 getValue = gets . getValue'
 
 lset :: Value -> ScopeM ()
-lset (Pair (Name k) (Pair v Nil)) = changeValue k v
+lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k
 lset _ = error "Wrong argument for set"
 
 llet' :: Func
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
-  changeValue k v
+  eval v >>= changeValue k
   eval val
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
-  changeValue k v
+  eval v >>= changeValue k
   llet' (Pair other c)
 llet' _ = error "Wrong argument for let"
 
