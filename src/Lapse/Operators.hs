@@ -3,6 +3,7 @@
 
 module Lapse.Operators where
 
+import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
 import Lapse.Eval (eval, lmap')
 import Lapse.Scopes (changeValue, dropScope, newScope)
@@ -97,3 +98,7 @@ ldouble _ = undefined
 
 llist :: Func
 llist = pure
+
+gensym :: Func
+gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
+gensym _ = undefined

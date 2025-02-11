@@ -1,6 +1,7 @@
 module Lapse.Prelude where
 
 import Data.Map.Strict (empty, fromList)
+import Lapse.Eval (eval)
 import Lapse.Operators
 import Lapse.Types (Scope, Scopes, Value (..))
 
@@ -20,6 +21,8 @@ prelude =
     , ("map", Function lmap)
     , ("double", Function ldouble)
     , ("list", Function llist)
+    , ("gensym", Function gensym)
+    , ("eval", Function eval)
     ]
 
 initState :: Scopes

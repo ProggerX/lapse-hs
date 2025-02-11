@@ -1,6 +1,6 @@
 module Lapse where
 
-import Control.Monad.State (evalState)
+import Control.Monad.State (evalState, evalStateT)
 import Lapse.Eval (eval)
 import Lapse.Prelude (initState)
 import Lapse.Types (ScopeM, Value (..))
@@ -18,7 +18,7 @@ numList' :: [Int] -> Value
 numList' = list' . map Number
 
 impureVal :: ScopeM Value -> Value
-impureVal = (`evalState` initState)
+impureVal = (`evalState` 0) . (`evalStateT` initState)
 
 runValue :: Value -> Value
 runValue = impureVal . eval

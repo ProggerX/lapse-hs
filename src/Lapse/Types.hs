@@ -1,6 +1,6 @@
 module Lapse.Types where
 
-import Control.Monad.State (State)
+import Control.Monad.State (State, StateT)
 import Data.Map.Strict (Map)
 
 type Scope = Map String Value
@@ -32,7 +32,7 @@ show' x = show x
 instance Show Value where
   show Nil = "()"
   show (Number n) = show n
-  show (Name s) = s
+  show (Name s) = if ' ' `elem` s then "#{" ++ s ++ "}#" else s
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
   show (Macros _) = "<macros>"
@@ -40,4 +40,6 @@ instance Show Value where
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
-type ScopeM a = State Scopes a
+type Counter = State Int
+
+type ScopeM a = StateT Scopes Counter a
