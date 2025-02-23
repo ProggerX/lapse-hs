@@ -19,6 +19,7 @@ library
       , Lapse.Scopes
       , Lapse.Types
       , Lapse.Prelude
+      , Lapse.Parser
   hs-source-dirs:
       src
   build-depends:
