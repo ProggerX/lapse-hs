@@ -2,6 +2,7 @@ module Lapse where
 
 import Control.Monad.State (evalState, evalStateT)
 import Lapse.Eval (eval)
+import Lapse.Parser (parse)
 import Lapse.Prelude (initState)
 import Lapse.Types (ScopeM, Value (..))
 
@@ -22,3 +23,6 @@ impureVal = (`evalState` 0) . (`evalStateT` initState)
 
 runValue :: Value -> Value
 runValue = impureVal . eval
+
+runExpression :: String -> String
+runExpression = show . map (impureVal . eval) . parse

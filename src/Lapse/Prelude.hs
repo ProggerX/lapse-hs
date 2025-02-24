@@ -23,6 +23,7 @@ prelude =
     , ("list", Function llist)
     , ("gensym", Function gensym)
     , ("eval", Function eval)
+    , ("nil", Nil)
     ]
 
 initState :: Scopes

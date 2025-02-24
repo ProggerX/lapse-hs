@@ -21,6 +21,7 @@ instance Eq Func where
   _ == _ = error "Can't compare functions"
 
 show' :: Value -> String
+show' (Pair a@(Pair _ _) Nil) = surround $ show' a
 show' (Pair a Nil) = show' a
 show' (Pair a b) =
   show a ++ " " ++ f b

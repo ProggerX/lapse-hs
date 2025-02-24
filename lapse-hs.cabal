@@ -46,5 +46,6 @@ executable lapse-hs
         base ^>=4.18.2.1
         , lapse-hs
         , mtl
+        , deepseq
     hs-source-dirs:   app
     default-language: GHC2021
