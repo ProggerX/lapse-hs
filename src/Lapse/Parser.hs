@@ -22,11 +22,8 @@ tokenize = tokenize' "" []
 tokenizeR :: String -> [String]
 tokenizeR = reverse . tokenize
 
-isDigit' :: String -> Bool
-isDigit' = all isDigit
-
 parseToken :: String -> Value
-parseToken t = if isDigit' t then Number (read t) else Name t
+parseToken t = if all isDigit t then Number (read t) else Name t
 
 parse' :: [Value] -> [String] -> Value
 parse' stack (t : ts) = case t of
