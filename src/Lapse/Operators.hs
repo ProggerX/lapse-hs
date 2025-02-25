@@ -102,3 +102,14 @@ llist = pure
 gensym :: Func
 gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
 gensym _ = undefined
+
+lraw :: Func
+lraw (Pair v Nil) = pure v
+lraw _ = undefined
+
+lfst :: Func
+lfst (Pair (Pair v _) Nil) = pure v
+lfst _ = error "not a pair"
+lsnd :: Func
+lsnd (Pair (Pair _ v) Nil) = pure v
+lsnd _ = error "not a pair"

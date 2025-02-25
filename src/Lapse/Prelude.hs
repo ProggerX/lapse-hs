@@ -24,6 +24,9 @@ prelude =
     , ("gensym", Function gensym)
     , ("eval", Function eval)
     , ("nil", Nil)
+    , ("raw", Macros lraw)
+    , ("fst", Function lfst)
+    , ("snd", Function lsnd)
     ]
 
 initState :: Scopes
