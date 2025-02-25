@@ -1,5 +1,5 @@
 cabal-version:      3.0
-name:               lapse-hs
+name:               lapse
 version:            0.1.0.0
 license:            GPL-3.0-only
 license-file:       LICENSE
@@ -39,12 +39,12 @@ test-suite test
       , lapse-hs
   default-language: GHC2021
 
-executable lapse-hs
+executable lapse
     import:           warnings
     main-is:          Main.hs
     build-depends:
         base ^>=4.18.2.1
-        , lapse-hs
+        , lapse
         , mtl
         , deepseq
     hs-source-dirs:   app
