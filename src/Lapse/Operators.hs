@@ -3,11 +3,12 @@
 
 module Lapse.Operators where
 
-import Control.Monad.State (get, lift, put)
+import Control.Monad.State (evalState, evalStateT, get, lift, put)
 import Data.Function (fix)
+import Data.Map.Strict (empty)
 import Lapse.Eval (eval, lmap')
 import Lapse.Scopes (changeValue, dropScope, newScope)
-import Lapse.Types (Func, Value (..))
+import Lapse.Types (Func, ScopeM, Scopes, Value (..))
 
 pureFunc :: (Value -> Value) -> Func
 pureFunc = (pure .)
@@ -103,8 +104,16 @@ gensym :: Func
 gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
 gensym _ = undefined
 
+impureVal' :: Scopes -> ScopeM Value -> Value
+impureVal' st = (`evalState` 0) . (`evalStateT` st)
+
 lraw :: Func
-lraw (Pair v Nil) = pure v
+lraw (Pair v Nil) = get >>= \st -> f st v
+ where
+  f :: Scopes -> Func
+  f _ (Pair (Name "unraw") (Pair b Nil)) = eval b
+  f st (Pair a b) = pure (Pair (impureVal' st $ f st a) (impureVal' st $ f st b))
+  f _ x = pure x
 lraw _ = undefined
 
 lfst :: Func

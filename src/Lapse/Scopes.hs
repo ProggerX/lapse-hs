@@ -23,7 +23,7 @@ getValue' :: String -> Scopes -> Value
 getValue' k (s : ss) = case s !? k of
   Nothing -> getValue' k ss
   Just x -> x
-getValue' _ [] = error "getValue: no such key!"
+getValue' k [] = error $ "getValue: no such key: " ++ k ++ "!"
 
 getValue :: String -> ScopeM Value
 getValue = gets . getValue'

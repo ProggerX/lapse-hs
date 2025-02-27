@@ -12,6 +12,7 @@ tokenize' cur tokens (c : cs) = case c of
   '(' -> tokenize' "" ("(" : add' cur tokens) cs
   ')' -> tokenize' "" (")" : add' cur tokens) cs
   '\'' -> tokenize' "" ("'" : add' cur tokens) cs
+  ',' -> tokenize' "" ("," : add' cur tokens) cs
   _ -> tokenize' (cur ++ [c]) tokens cs
 tokenize' cur tokens "" = case cur of
   "" -> tokens
@@ -37,6 +38,7 @@ parse' stack (t : ts) = case t of
    where
     tl = tail stack
   "'" -> parse' (Pair (Pair (Name "raw") (head stack)) Nil : tail stack) ts
+  "," -> parse' (Pair (Pair (Name "unraw") (head stack)) Nil : tail stack) ts
   "." -> parse' (fst' (head stack) : tail stack) ts
   _ -> parse' (Pair (parseToken t) (head stack) : tail stack) ts
 parse' stack [] = head stack
