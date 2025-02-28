@@ -24,5 +24,8 @@ impureVal = (`evalState` 0) . (`evalStateT` initState)
 runValue :: Value -> Value
 runValue = impureVal . eval
 
+runExpression' :: String -> [Value]
+runExpression' = map (impureVal . eval) . parse
+
 runExpression :: String -> String
-runExpression = show . map (impureVal . eval) . parse
+runExpression = show . runExpression'

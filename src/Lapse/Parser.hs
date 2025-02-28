@@ -31,14 +31,32 @@ fst' :: Value -> Value
 fst' (Pair v Nil) = v
 fst' _ = error "parse error"
 
+fst'' :: Value -> Value
+fst'' (Pair v _) = v
+fst'' _ = error "parse error"
+
+snd'' :: Value -> Value
+snd'' (Pair _ v) = v
+snd'' _ = error "parse error"
+
 parse' :: [Value] -> [String] -> Value
 parse' stack (t : ts) = case t of
   ")" -> parse' (Nil : stack) ts
   "(" -> parse' (Pair (head stack) (head tl) : tail tl) ts
    where
     tl = tail stack
-  "'" -> parse' (Pair (Pair (Name "raw") (head stack)) Nil : tail stack) ts
-  "," -> parse' (Pair (Pair (Name "unraw") (head stack)) Nil : tail stack) ts
+  "," ->
+    let h = head stack
+        el = fst'' h
+        el' = snd'' h
+        tl = tail stack
+     in parse' (Pair (Pair (Name "unraw") (Pair el Nil)) el' : tl) ts
+  "'" ->
+    let h = head stack
+        el = fst'' h
+        el' = snd'' h
+        tl = tail stack
+     in parse' (Pair (Pair (Name "raw") (Pair el Nil)) el' : tl) ts
   "." -> parse' (fst' (head stack) : tail stack) ts
   _ -> parse' (Pair (parseToken t) (head stack) : tail stack) ts
 parse' stack [] = head stack

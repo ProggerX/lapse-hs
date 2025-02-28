@@ -5,7 +5,6 @@ module Lapse.Operators where
 
 import Control.Monad.State (evalState, evalStateT, get, lift, put)
 import Data.Function (fix)
-import Data.Map.Strict (empty)
 import Lapse.Eval (eval, lmap')
 import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, ScopeM, Scopes, Value (..))
