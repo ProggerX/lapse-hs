@@ -121,3 +121,13 @@ lfst _ = error "not a pair"
 lsnd :: Func
 lsnd (Pair (Pair _ v) Nil) = pure v
 lsnd _ = error "not a pair"
+
+lpow :: Func
+lpow = pureFunc \case
+  (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a ^ b
+  _ -> undefined
+
+lsqr :: Func
+lsqr = pureFunc \case
+  (Pair (Number a) Nil) -> Number $ floor (sqrt $ fromIntegral a :: Double)
+  _ -> undefined

@@ -1,7 +1,7 @@
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
-import Lapse (impureVal, list, numList)
+import Lapse (impureVal, list, numList, runExpression)
 import Lapse.Infix (toInfix)
 import Lapse.Operators
 import Lapse.Types (Func, ScopeM, Value (..))
@@ -54,6 +54,13 @@ condTests =
   , (list [list [Nil, Number 2], list [Nil, Number 3], list [Nil, Number 4]], Nil)
   ]
 
+exprTests :: [(String, String)]
+exprTests =
+  [ ("(+ 1 2)", "[3]")
+  , ("(let ((a 1)) a)", "[1]")
+  , ("(let ((a 1) (b 2) (c 3)) '(,a ,b ,c ,(+ a b c)))", "[(1 2 3 6)]")
+  ]
+
 main :: IO ()
 main =
   defaultMain $
@@ -71,4 +78,7 @@ main =
       , testGroup
           "cond"
           $ map (\(t, x) -> testCase "test" $ (impureVal . cond) t @?= x) condTests
+      , testGroup
+          "expression tests"
+          $ map (\(t, x) -> testCase "test" $ runExpression t @?= x) exprTests
       ]

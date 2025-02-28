@@ -15,6 +15,8 @@ prelude =
     , ("<", Function llss)
     , (">", Function lgrt)
     , ("==", Function leql)
+    , ("^", Function lpow)
+    , ("sqrt", Function lsqr)
     , ("let", Macros llet)
     , ("set", Macros lset)
     , ("cond", Macros cond)
