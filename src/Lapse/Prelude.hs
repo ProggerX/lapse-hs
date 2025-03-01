@@ -29,6 +29,7 @@ prelude =
     , ("raw", Macros lraw)
     , ("fst", Function lfst)
     , ("snd", Function lsnd)
+    , ("fact", Function lfac)
     ]
 
 initState :: Scopes

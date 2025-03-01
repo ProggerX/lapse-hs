@@ -131,3 +131,12 @@ lsqr :: Func
 lsqr = pureFunc \case
   (Pair (Number a) Nil) -> Number $ floor (sqrt $ fromIntegral a :: Double)
   _ -> undefined
+
+fact :: Int -> Int
+fact 0 = 1
+fact x = x * fact (x - 1)
+
+lfac :: Func
+lfac = pureFunc \case
+  (Pair (Number a) Nil) -> Number $ fact a
+  _ -> undefined
