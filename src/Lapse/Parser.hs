@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Parser where
 
 import Data.Char (isDigit)
@@ -6,14 +8,23 @@ import Lapse.Types (Value (..))
 add' :: (Monoid a, Eq a) => a -> [a] -> [a]
 add' s a = if s == mempty then a else s : a
 
+isSpace :: Char -> Bool
+isSpace = \case
+  ' ' -> True
+  '\t' -> True
+  '\n' -> True
+  _ -> False
+
 tokenize' :: String -> [String] -> String -> [String]
 tokenize' cur tokens (c : cs) = case c of
-  ' ' -> tokenize' "" (add' cur tokens) cs
   '(' -> tokenize' "" ("(" : add' cur tokens) cs
   ')' -> tokenize' "" (")" : add' cur tokens) cs
   '\'' -> tokenize' "" ("'" : add' cur tokens) cs
   ',' -> tokenize' "" ("," : add' cur tokens) cs
-  _ -> tokenize' (cur ++ [c]) tokens cs
+  _ ->
+    if isSpace c
+      then tokenize' "" (add' cur tokens) cs
+      else tokenize' (cur ++ [c]) tokens cs
 tokenize' cur tokens "" = case cur of
   "" -> tokens
   _ -> cur : tokens

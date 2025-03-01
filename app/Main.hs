@@ -41,7 +41,7 @@ executeFile :: String -> IO ()
 executeFile s = do
   exists <- fileExists s
   unless exists (error $ "No such file: " ++ s)
-  expr <- unwords . lines <$> readFile' s
+  expr <- readFile' s
   run expr
 
 notEmpty :: (Foldable t) => t a -> Bool
