@@ -1,19 +1,16 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Lapse.Parser where
 
-import Data.Char (isDigit)
+import Data.Char (isDigit, isSpace)
 import Lapse.Types (Value (..))
 
 add' :: (Monoid a, Eq a) => a -> [a] -> [a]
 add' s a = if s == mempty then a else s : a
 
-isSpace :: Char -> Bool
-isSpace = \case
-  ' ' -> True
-  '\t' -> True
-  '\n' -> True
-  _ -> False
+stringToken :: String -> String -> (String, String)
+stringToken [] _ = error "Parse error"
+stringToken (c : cs) cur = case c of
+  '"' -> (('"' : cur) ++ ['"'], cs)
+  _ -> stringToken cs (cur ++ [c])
 
 tokenize' :: String -> [String] -> String -> [String]
 tokenize' cur tokens (c : cs) = case c of
@@ -21,6 +18,11 @@ tokenize' cur tokens (c : cs) = case c of
   ')' -> tokenize' "" (")" : add' cur tokens) cs
   '\'' -> tokenize' "" ("'" : add' cur tokens) cs
   ',' -> tokenize' "" ("," : add' cur tokens) cs
+  '"' -> tokenize' "" newTokens newCs
+   where
+    new = stringToken cs ""
+    newTokens = fst new : tokens
+    newCs = snd new
   _ ->
     if isSpace c
       then tokenize' "" (add' cur tokens) cs
@@ -35,9 +37,6 @@ tokenize = tokenize' "" []
 tokenizeR :: String -> [String]
 tokenizeR = reverse . tokenize
 
-parseToken :: String -> Value
-parseToken t = if all isDigit t then Number (read t) else Name t
-
 fst' :: Value -> Value
 fst' (Pair v Nil) = v
 fst' _ = error "parse error"
@@ -49,6 +48,24 @@ fst'' _ = error "parse error"
 snd'' :: Value -> Value
 snd'' (Pair _ v) = v
 snd'' _ = error "parse error"
+
+startsWith :: (Eq a) => [a] -> a -> Bool
+startsWith = (==) . head
+
+endsWith :: (Eq a) => [a] -> a -> Bool
+endsWith = (==) . last
+
+isString :: String -> Bool
+isString t = (t `endsWith` '"') && (t `startsWith` '"')
+
+trim :: String -> String
+trim = init . tail
+
+parseToken :: String -> Value
+parseToken t
+  | all isDigit t = Number $ read t
+  | isString t = String $ trim t
+  | otherwise = Name t
 
 parse' :: [Value] -> [String] -> Value
 parse' stack (t : ts) = case t of
@@ -75,7 +92,7 @@ parse' stack [] = head stack
 unList :: Value -> [Value]
 unList Nil = []
 unList (Pair h t) = h : unList t
-unList _ = error "parse error"
+unList _ = error "Parse error in unList"
 
 parse :: String -> [Value]
 parse = unList . parse' [Nil] . tokenize

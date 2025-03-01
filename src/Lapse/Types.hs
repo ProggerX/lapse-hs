@@ -1,8 +1,7 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Lapse.Types where
 
 import Control.Monad.State (State, StateT)
+import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
 
 type Scope = Map String Value
@@ -15,6 +14,7 @@ data Value
   | Number Int
   | Name String
   | Pair Value Value
+  | String String
   | Function Func
   | Macros Func
   deriving (Eq)
@@ -33,20 +33,23 @@ show' (Pair a b) =
 show' x = show x
 
 isIdent :: Char -> Bool
-isIdent = \case
-  ' ' -> True
-  '(' -> True
-  ')' -> True
-  '[' -> True
-  ']' -> True
-  '\t' -> True
-  '\n' -> True
-  _ -> False
+isIdent x
+  | isSpace x = False
+  | isControl x = False
+  | otherwise = case x of
+      '(' -> False
+      ')' -> False
+      '[' -> False
+      ']' -> False
+      '{' -> False
+      '}' -> False
+      _ -> True
 
 instance Show Value where
   show Nil = "()"
   show (Number n) = show n
-  show (Name s) = if any isIdent s then "#{" ++ s ++ "}#" else s
+  show (Name s) = if all isIdent s then s else "#{" ++ s ++ "}#"
+  show (String s) = show s
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
   show (Macros _) = "<macros>"

@@ -26,6 +26,7 @@ library
       base ^>=4.18.2.1
       , containers
       , mtl
+      , split
   default-language: GHC2021
 
 test-suite test

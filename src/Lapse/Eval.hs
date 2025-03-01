@@ -16,12 +16,13 @@ lmap' _ _ = error "Wrong lmap expression"
 eval :: Func
 eval = \case
   Nil -> pure Nil
-  n@(Number _) -> pure n
-  x@(Function _) -> pure x
-  m@(Macros _) -> pure m
   Name x -> getValue x
-  (Pair x args) ->
+  x@(Number _) -> pure x
+  x@(String _) -> pure x
+  x@(Function _) -> pure x
+  x@(Macros _) -> pure x
+  p@(Pair x args) ->
     eval x >>= \case
       (Macros m) -> m args
       (Function f) -> lmap' eval args >>= f
-      _ -> error $ "Can't eval this list: " ++ show (Pair x args)
+      _ -> error $ "Can't eval this list: " ++ show p

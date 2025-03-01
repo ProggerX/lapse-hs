@@ -140,3 +140,11 @@ lfac :: Func
 lfac = pureFunc \case
   (Pair (Number a) Nil) -> Number $ fact a
   _ -> undefined
+
+lcon :: Func
+lcon = pureFunc' \f -> \case
+  (Pair s@(String _) Nil) -> s
+  (Pair (String s) b) -> case f b of
+    (String b') -> String $ s ++ b'
+    _ -> error "Concat error"
+  _ -> error "Concat error"

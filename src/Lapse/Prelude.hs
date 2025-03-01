@@ -30,6 +30,7 @@ prelude =
     , ("fst", Function lfst)
     , ("snd", Function lsnd)
     , ("fact", Function lfac)
+    , ("concat", Function lcon)
     ]
 
 initState :: Scopes

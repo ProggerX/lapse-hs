@@ -59,6 +59,7 @@ exprTests =
   [ ("(+ 1 2)", "[3]")
   , ("(let ((a 1)) a)", "[1]")
   , ("(let ((a 1) (b 2) (c 3)) '(,a ,b ,c ,(+ a b c)))", "[(1 2 3 6)]")
+  , ("(let ((a \"stra\") (b \"bstr\")) (concat a b))", "[\"strabstr\"]")
   ]
 
 main :: IO ()
