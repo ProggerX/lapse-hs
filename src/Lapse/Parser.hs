@@ -7,9 +7,17 @@ add' :: (Monoid a, Eq a) => a -> [a] -> [a]
 add' s a = if s == mempty then a else s : a
 
 stringToken :: String -> String -> (String, String)
-stringToken [] _ = error "Parse error"
+stringToken [] _ = error "Tokenize error in stringToken"
 stringToken (c : cs) cur = case c of
   '"' -> (('"' : cur) ++ ['"'], cs)
+  '\\' ->
+    stringToken
+      (tail cs)
+      ( cur ++ case head cs of
+          '"' -> ['"']
+          'n' -> ['\n']
+          c' -> '\\' : [c']
+      )
   _ -> stringToken cs (cur ++ [c])
 
 tokenize' :: String -> [String] -> String -> [String]
