@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Types where
 
 import Control.Monad.State (State, StateT)
@@ -30,10 +32,21 @@ show' (Pair a b) =
   f x = ". " ++ show x
 show' x = show x
 
+isIdent :: Char -> Bool
+isIdent = \case
+  ' ' -> True
+  '(' -> True
+  ')' -> True
+  '[' -> True
+  ']' -> True
+  '\t' -> True
+  '\n' -> True
+  _ -> False
+
 instance Show Value where
   show Nil = "()"
   show (Number n) = show n
-  show (Name s) = if ' ' `elem` s then "#{" ++ s ++ "}#" else s
+  show (Name s) = if any isIdent s then "#{" ++ s ++ "}#" else s
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
   show (Macros _) = "<macros>"
