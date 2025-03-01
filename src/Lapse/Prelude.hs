@@ -31,6 +31,7 @@ prelude =
     , ("snd", Function lsnd)
     , ("fact", Function lfac)
     , ("concat", Function lcon)
+    , ("show", Function lshow)
     ]
 
 initState :: Scopes

@@ -117,10 +117,10 @@ lraw _ = undefined
 
 lfst :: Func
 lfst (Pair (Pair v _) Nil) = pure v
-lfst _ = error "not a pair"
+lfst _ = error "Not a pair"
 lsnd :: Func
 lsnd (Pair (Pair _ v) Nil) = pure v
-lsnd _ = error "not a pair"
+lsnd _ = error "Not a pair"
 
 lpow :: Func
 lpow = pureFunc \case
@@ -148,3 +148,7 @@ lcon = pureFunc' \f -> \case
     (String b') -> String $ s ++ b'
     _ -> error "Concat error"
   _ -> error "Concat error"
+
+lshow :: Func
+lshow (Pair x Nil) = pure $ String $ show x
+lshow _ = error "Show need exactly one argument"
