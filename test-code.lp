@@ -7,3 +7,8 @@
 	'(a b c ,a ,b ,c (+ a b c) ,(+ a b c))
 ))
 (print result)
+(defmacro if (c then else) (cond ((eval c) then) (1 else)))
+(if (> 1 2) (print "1 > 2")
+	  (print "1 <= 2"))
+(if (< 1 2) (print "1 < 2")
+	  (print "1 >= 2"))

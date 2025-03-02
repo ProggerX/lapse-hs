@@ -2,6 +2,7 @@ module Lapse.Prelude where
 
 import Data.Map.Strict (empty, fromList)
 import Lapse.Eval (eval)
+import Lapse.Lambda (define, defmacro, lambda, macro)
 import Lapse.Operators
 import Lapse.Types (Scope, Scopes, Value (..))
 
@@ -24,7 +25,7 @@ prelude =
     , ("double", Function ldouble)
     , ("list", Function llist)
     , ("gensym", Function gensym)
-    , ("eval", Function eval)
+    , ("eval", Function leval)
     , ("nil", Nil)
     , ("raw", Macros lraw)
     , ("fst", Function lfst)
@@ -32,6 +33,10 @@ prelude =
     , ("fact", Function lfac)
     , ("concat", Function lcon)
     , ("show", Function lshow)
+    , ("lambda", Macros lambda)
+    , ("defn", Macros define)
+    , ("macro", Macros macro)
+    , ("defmacro", Macros defmacro)
     ]
 
 ioPrelude :: Scope IO

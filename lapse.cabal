@@ -1,31 +1,33 @@
 cabal-version:      3.0
 name:               lapse
-version:            0.0.2
+version:            1.0.0
 license:            GPL-3.0-only
 license-file:       LICENSE
 author:             ProggerX
 maintainer:         x@proggers.ru
 build-type:         Simple
+
 common warnings
-    ghc-options: -Wall
+  ghc-options: -Wall
 
 library
   import:           warnings
   exposed-modules:
-      Lapse
-      , Lapse.Operators
-      , Lapse.Eval
-      , Lapse.Scopes
-      , Lapse.Types
-      , Lapse.Prelude
-      , Lapse.Parser
+    Lapse
+    , Lapse.Operators
+    , Lapse.Eval
+    , Lapse.Scopes
+    , Lapse.Types
+    , Lapse.Lambda
+    , Lapse.Prelude
+    , Lapse.Parser
   hs-source-dirs:
-      src
+    src
   build-depends:
-      base ^>=4.18.2.1
-      , containers
-      , mtl
-      , split
+    base ^>=4.18.2.1
+    , containers
+    , mtl
+    , split
   default-language: GHC2021
 
 test-suite test
@@ -33,19 +35,19 @@ test-suite test
   hs-source-dirs: test
   main-is: Main.hs
   build-depends:
-      base ^>=4.18.2.1
-      , tasty
-      , tasty-hunit
-      , lapse
+    base ^>=4.18.2.1
+    , tasty
+    , tasty-hunit
+    , lapse
   default-language: GHC2021
 
 executable lapse
-    import:           warnings
-    main-is:          Main.hs
-    build-depends:
-        base ^>=4.18.2.1
-        , lapse
-        , mtl
-        , deepseq
-    hs-source-dirs:   app
-    default-language: GHC2021
+  import:           warnings
+  main-is:          Main.hs
+  build-depends:
+    base ^>=4.18.2.1
+    , lapse
+    , mtl
+    , deepseq
+  hs-source-dirs:   app
+  default-language: GHC2021

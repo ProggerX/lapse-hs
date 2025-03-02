@@ -161,3 +161,7 @@ lprint _ = error "Print need exactly one argument"
 
 lgetl :: Func IO
 lgetl = const (liftIO (String <$> getLine))
+
+leval :: (Monad m) => Func m
+leval (Pair x Nil) = eval x
+leval _ = error "Eval need exactly one argument"
