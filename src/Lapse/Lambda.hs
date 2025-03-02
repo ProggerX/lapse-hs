@@ -27,11 +27,12 @@ unName v = error $ "Expected name, but got: " ++ show v
 mkFunction :: (Monad m) => [Value m] -> Value m -> LapseM m (Func m)
 mkFunction argsN' expr = gets f
  where
-  f ss args =
+  f ss args = do
+    ns <- get
     let
       argsV = unList args
       argsN = map unName argsN'
-      ss' = fromList (zip argsN argsV) : ss
+      ss' = fromList (zip argsN argsV) : ss ++ ns
      in
       inScopes ss' expr
 
