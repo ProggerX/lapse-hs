@@ -17,4 +17,6 @@ Just an example:
 	  (print "1 <= 2"))
 (if (< 1 2) (print "1 < 2")
 	  (print "1 >= 2"))
+(defn fac (x) (if (< x 1) 1 (* x (fac (- x 1)))))
+(print (fac 6))
 ```
