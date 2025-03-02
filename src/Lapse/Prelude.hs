@@ -5,7 +5,7 @@ import Lapse.Eval (eval)
 import Lapse.Operators
 import Lapse.Types (Scope, Scopes, Value (..))
 
-prelude :: Scope
+prelude :: (Monad m) => Scope m
 prelude =
   fromList
     [ ("+", Function ladd)
@@ -34,5 +34,15 @@ prelude =
     , ("show", Function lshow)
     ]
 
-initState :: Scopes
+ioPrelude :: Scope IO
+ioPrelude =
+  fromList
+    [ ("print", Function lprint)
+    , ("getline", Function lgetl)
+    ]
+
+initState :: (Monad m) => Scopes m
 initState = [empty, prelude]
+
+initIOState :: Scopes IO
+initIOState = [empty, prelude, ioPrelude]

@@ -3,9 +3,9 @@
 module Lapse.Eval where
 
 import Lapse.Scopes (getValue)
-import Lapse.Types (Func, ScopeM, Value (..))
+import Lapse.Types (Func, LapseM, Value (..))
 
-lmap' :: Func -> Value -> ScopeM Value
+lmap' :: (Monad m) => Func m -> Value m -> LapseM m (Value m)
 lmap' f (Pair x y) = do
   fx <- f x
   lmapfy <- lmap' f y
@@ -13,7 +13,7 @@ lmap' f (Pair x y) = do
 lmap' _ Nil = pure Nil
 lmap' _ _ = error "Wrong lmap expression"
 
-eval :: Func
+eval :: (Monad m) => Func m
 eval = \case
   Nil -> pure Nil
   Name x -> getValue x

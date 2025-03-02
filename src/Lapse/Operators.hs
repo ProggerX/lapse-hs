@@ -3,19 +3,20 @@
 
 module Lapse.Operators where
 
-import Control.Monad.State (evalState, evalStateT, get, lift, put)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
 import Lapse.Eval (eval, lmap')
 import Lapse.Scopes (changeValue, dropScope, newScope)
-import Lapse.Types (Func, ScopeM, Scopes, Value (..))
+import Lapse.Types (Func, Value (..))
 
-pureFunc :: (Value -> Value) -> Func
+pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
 pureFunc = (pure .)
 
-pureFunc' :: ((Value -> Value) -> Value -> Value) -> Func
+pureFunc' :: (Monad m) => ((Value m -> Value m) -> Value m -> Value m) -> Func m
 pureFunc' = pureFunc . fix
 
-ladd :: Func
+ladd :: (Monad m) => Func m
 ladd = pureFunc' \f -> \case
   Nil -> Number 0
   (Pair (Number a) b) ->
@@ -26,7 +27,7 @@ ladd = pureFunc' \f -> \case
       )
   _ -> undefined
 
-lmul :: Func
+lmul :: (Monad m) => Func m
 lmul = pureFunc' \f -> \case
   Nil -> Number 1
   (Pair (Number a) b) ->
@@ -37,36 +38,36 @@ lmul = pureFunc' \f -> \case
       )
   _ -> undefined
 
-lsub :: Func
+lsub :: (Monad m) => Func m
 lsub = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
   _ -> undefined
 
-ldiv :: Func
+ldiv :: (Monad m) => Func m
 ldiv = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
   _ -> undefined
 
-lgrt :: Func
+lgrt :: (Monad m) => Func m
 lgrt = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
   _ -> undefined
 
-llss :: Func
+llss :: (Monad m) => Func m
 llss = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
   _ -> undefined
 
-leql :: Func
+leql :: (Monad m) => Func m
 leql = pureFunc \case
   (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
   _ -> undefined
 
-lset :: Func
+lset :: (Monad m) => Func m
 lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
 lset _ = error "Wrong argument for set"
 
-llet' :: Func
+llet' :: (Monad m) => Func m
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
   eval v >>= changeValue k
   eval val
@@ -75,10 +76,10 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
   llet' (Pair other c)
 llet' _ = error "Wrong argument for let"
 
-llet :: Func
+llet :: (Monad m) => Func m
 llet v = newScope *> llet' v <* dropScope
 
-cond :: Func
+cond :: (Monad m) => Func m
 cond = \case
   Nil -> pure Nil
   (Pair (Pair c (Pair r Nil)) els) ->
@@ -87,47 +88,47 @@ cond = \case
       _ -> eval r
   _ -> undefined
 
-lmap :: Func
+lmap :: (Monad m) => Func m
 lmap (Pair (Function f) (Pair oth Nil)) = lmap' f oth
 lmap (Pair (Macros f) (Pair oth Nil)) = lmap' f oth
 lmap _ = undefined
 
-ldouble :: Func
+ldouble :: (Monad m) => Func m
 ldouble (Number x) = pure $ Number $ x * 2
 ldouble _ = undefined
 
-llist :: Func
+llist :: (Monad m) => Func m
 llist = pure
 
-gensym :: Func
+gensym :: (Monad m) => Func m
 gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
 gensym _ = undefined
 
-impureVal' :: Scopes -> ScopeM Value -> Value
-impureVal' st = (`evalState` 0) . (`evalStateT` st)
-
-lraw :: Func
-lraw (Pair v Nil) = get >>= \st -> f st v
+lraw :: (Monad m) => Func m
+lraw (Pair v Nil) = f v
  where
-  f :: Scopes -> Func
-  f _ (Pair (Name "unraw") (Pair b Nil)) = eval b
-  f st (Pair a b) = pure (Pair (impureVal' st $ f st a) (impureVal' st $ f st b))
-  f _ x = pure x
+  f :: (Monad m) => Func m
+  f (Pair (Name "unraw") (Pair b Nil)) = eval b
+  f (Pair a b) = do
+    fa <- f a
+    fb <- f b
+    pure (Pair fa fb)
+  f x = pure x
 lraw _ = undefined
 
-lfst :: Func
+lfst :: (Monad m) => Func m
 lfst (Pair (Pair v _) Nil) = pure v
 lfst _ = error "Not a pair"
-lsnd :: Func
+lsnd :: (Monad m) => Func m
 lsnd (Pair (Pair _ v) Nil) = pure v
 lsnd _ = error "Not a pair"
 
-lpow :: Func
+lpow :: (Monad m) => Func m
 lpow = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a ^ b
   _ -> undefined
 
-lsqr :: Func
+lsqr :: (Monad m) => Func m
 lsqr = pureFunc \case
   (Pair (Number a) Nil) -> Number $ floor (sqrt $ fromIntegral a :: Double)
   _ -> undefined
@@ -136,12 +137,12 @@ fact :: Int -> Int
 fact 0 = 1
 fact x = x * fact (x - 1)
 
-lfac :: Func
+lfac :: (Monad m) => Func m
 lfac = pureFunc \case
   (Pair (Number a) Nil) -> Number $ fact a
   _ -> undefined
 
-lcon :: Func
+lcon :: (Monad m) => Func m
 lcon = pureFunc' \f -> \case
   (Pair s@(String _) Nil) -> s
   (Pair (String s) b) -> case f b of
@@ -149,6 +150,14 @@ lcon = pureFunc' \f -> \case
     _ -> error "Concat error"
   _ -> error "Concat error"
 
-lshow :: Func
+lshow :: (Monad m) => Func m
 lshow (Pair x Nil) = pure $ String $ show x
 lshow _ = error "Show need exactly one argument"
+
+lprint :: Func IO
+lprint (Pair (String v) Nil) = liftIO $ putStrLn v >> pure Nil
+lprint (Pair v Nil) = liftIO $ print v >> pure Nil
+lprint _ = error "Print need exactly one argument"
+
+lgetl :: Func IO
+lgetl = const (liftIO (String <$> getLine))

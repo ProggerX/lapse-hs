@@ -1,28 +1,28 @@
 module Lapse.Types where
 
-import Control.Monad.State (State, StateT)
+import Control.Monad.State (StateT)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
 
-type Scope = Map String Value
-type Scopes = [Scope]
+type Scope m = Map String (Value m)
+type Scopes m = [Scope m]
 
-type Func = (Value -> ScopeM Value)
+type Func m = (Value m -> LapseM m (Value m))
 
-data Value
+data Value m
   = Nil
   | Number Int
   | Name String
-  | Pair Value Value
+  | Pair (Value m) (Value m)
   | String String
-  | Function Func
-  | Macros Func
+  | Function (Func m)
+  | Macros (Func m)
   deriving (Eq)
 
-instance Eq Func where
+instance Eq (Func m) where
   _ == _ = error "Can't compare functions"
 
-show' :: Value -> String
+show' :: Value m -> String
 show' (Pair a@(Pair _ _) Nil) = surround $ show' a
 show' (Pair a Nil) = show' a
 show' (Pair a b) =
@@ -45,7 +45,7 @@ isIdent x
       '}' -> False
       _ -> True
 
-instance Show Value where
+instance Show (Value m) where
   show Nil = "()"
   show (Number n) = show n
   show (Name s) = if all isIdent s then s else "#{" ++ s ++ "}#"
@@ -57,6 +57,4 @@ instance Show Value where
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
-type Counter = State Int
-
-type ScopeM = StateT Scopes Counter
+type LapseM m = StateT (Scopes m) (StateT Int m)

@@ -1,28 +1,38 @@
 module Lapse where
 
-import Control.Monad.State (evalState, evalStateT)
+import Control.Monad ((<=<))
+import Control.Monad.State (evalStateT)
 import Lapse.Eval (eval)
 import Lapse.Parser (parse)
-import Lapse.Prelude (initState)
-import Lapse.Types (ScopeM, Value (..))
+import Lapse.Prelude (initIOState, initState)
+import Lapse.Types (LapseM, Value (..))
 
-list :: [Value] -> Value
+list :: [Value m] -> Value m
 list = foldr Pair Nil
 
-numList :: [Int] -> Value
+numList :: [Int] -> Value m
 numList = list . map Number
 
-list' :: [Value] -> Value
+list' :: [Value m] -> Value m
 list' = Pair (Name "list") . list
 
-numList' :: [Int] -> Value
+numList' :: [Int] -> Value m
 numList' = list' . map Number
 
-evalScopeM :: ScopeM a -> a
-evalScopeM = (`evalState` 0) . (`evalStateT` initState)
+evalLapseM :: (Monad m) => LapseM m a -> m a
+evalLapseM = (`evalStateT` 0) . (`evalStateT` initState)
 
-runExpression :: String -> [Value]
-runExpression = evalScopeM . mapM eval . parse
+runExpression :: (Monad m) => String -> m [Value m]
+runExpression = evalLapseM . mapM eval . parse
 
-runExpression' :: String -> String
-runExpression' = show . runExpression
+runExpression' :: (Monad m) => String -> m String
+runExpression' = (pure . show) <=< runExpression
+
+evalLapseMIO :: LapseM IO a -> IO a
+evalLapseMIO = (`evalStateT` 0) . (`evalStateT` initIOState)
+
+runExpressionIO :: String -> IO [Value IO]
+runExpressionIO = evalLapseMIO . mapM eval . parse
+
+runExpressionIO' :: String -> IO String
+runExpressionIO' = (pure . show) <=< runExpressionIO

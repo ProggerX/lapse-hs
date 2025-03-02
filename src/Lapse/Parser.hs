@@ -45,15 +45,15 @@ tokenize = tokenize' "" []
 tokenizeR :: String -> [String]
 tokenizeR = reverse . tokenize
 
-fst' :: Value -> Value
+fst' :: Value m -> Value m
 fst' (Pair v Nil) = v
 fst' _ = error "parse error"
 
-fst'' :: Value -> Value
+fst'' :: Value m -> Value m
 fst'' (Pair v _) = v
 fst'' _ = error "parse error"
 
-snd'' :: Value -> Value
+snd'' :: Value m -> Value m
 snd'' (Pair _ v) = v
 snd'' _ = error "parse error"
 
@@ -69,13 +69,13 @@ isString t = (t `endsWith` '"') && (t `startsWith` '"')
 trim :: String -> String
 trim = init . tail
 
-parseToken :: String -> Value
+parseToken :: String -> Value m
 parseToken t
   | all isDigit t = Number $ read t
   | isString t = String $ trim t
   | otherwise = Name t
 
-parse' :: [Value] -> [String] -> Value
+parse' :: [Value m] -> [String] -> Value m
 parse' stack (t : ts) = case t of
   ")" -> parse' (Nil : stack) ts
   "(" -> parse' (Pair (head stack) (head tl) : tail tl) ts
@@ -97,10 +97,10 @@ parse' stack (t : ts) = case t of
   _ -> parse' (Pair (parseToken t) (head stack) : tail stack) ts
 parse' stack [] = head stack
 
-unList :: Value -> [Value]
+unList :: Value m -> [Value m]
 unList Nil = []
 unList (Pair h t) = h : unList t
 unList _ = error "Parse error in unList"
 
-parse :: String -> [Value]
+parse :: (Monad m) => String -> [Value m]
 parse = unList . parse' [Nil] . tokenize

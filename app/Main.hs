@@ -1,9 +1,9 @@
 module Main where
 
-import Control.DeepSeq (force)
+import Control.DeepSeq (NFData, force)
 import Control.Exception (SomeException (..), catch, evaluate)
 import Control.Monad (forever, unless)
-import Lapse (runExpression')
+import Lapse (runExpression', runExpressionIO)
 import System.Environment (getArgs)
 import System.IO (
   IOMode (ReadMode),
@@ -22,27 +22,23 @@ fileExists path =
     return True
     `catch` (\(SomeException _) -> return False)
 
-catchAny :: String -> (SomeException -> IO String) -> IO String
+catchAny :: (NFData (m String)) => m String -> (SomeException -> IO (m String)) -> IO (m String)
 catchAny = catch . evaluate . force
-
-run :: String -> IO String
-run expr = do
-  catchAny (runExpression' expr) (pure . show)
 
 repl :: IO ()
 repl = forever $ do
   putStr "(repl@lapse)>> "
   hFlush stdout
   expr <- getLine
-  res <- run expr
-  putStrLn res
+  res <- catchAny (runExpression' expr) (pure . pure . show)
+  putStrLn $ head res
 
 executeFile :: String -> IO ()
 executeFile s = do
   exists <- fileExists s
   unless exists (error $ "No such file: " ++ s)
   expr <- readFile' s
-  _ <- run expr
+  _ <- runExpressionIO expr
   pure ()
 
 notEmpty :: (Foldable t) => t a -> Bool
