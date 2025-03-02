@@ -59,4 +59,4 @@ surround s = "(" ++ s ++ ")"
 
 type Counter = State Int
 
-type ScopeM a = StateT Scopes Counter a
+type ScopeM = StateT Scopes Counter

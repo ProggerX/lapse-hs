@@ -1,7 +1,7 @@
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
-import Lapse (impureVal, list, numList, runExpression)
+import Lapse (evalScopeM, list, numList, runExpression')
 import Lapse.Infix (toInfix)
 import Lapse.Operators
 import Lapse.Types (Func, ScopeM, Value (..))
@@ -75,11 +75,11 @@ main =
           $ map (\(t, x) -> testCase "test" $ toInfix t @?= x) infixTests
       , testGroup
           "operators"
-          $ map (\(t, x) -> testCase "test" $ impureVal t @?= x) opTests
+          $ map (\(t, x) -> testCase "test" $ evalScopeM t @?= x) opTests
       , testGroup
           "cond"
-          $ map (\(t, x) -> testCase "test" $ (impureVal . cond) t @?= x) condTests
+          $ map (\(t, x) -> testCase "test" $ (evalScopeM . cond) t @?= x) condTests
       , testGroup
           "expression tests"
-          $ map (\(t, x) -> testCase "test" $ runExpression t @?= x) exprTests
+          $ map (\(t, x) -> testCase "test" $ runExpression' t @?= x) exprTests
       ]

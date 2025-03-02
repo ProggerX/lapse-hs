@@ -3,7 +3,7 @@ module Main where
 import Control.DeepSeq (force)
 import Control.Exception (SomeException (..), catch, evaluate)
 import Control.Monad (forever, unless)
-import Lapse (runExpression)
+import Lapse (runExpression')
 import System.Environment (getArgs)
 import System.IO (
   IOMode (ReadMode),
@@ -25,24 +25,25 @@ fileExists path =
 catchAny :: String -> (SomeException -> IO String) -> IO String
 catchAny = catch . evaluate . force
 
-run :: String -> IO ()
+run :: String -> IO String
 run expr = do
-  result <- catchAny (runExpression expr) (pure . show)
-  putStrLn result
+  catchAny (runExpression' expr) (pure . show)
 
 repl :: IO ()
 repl = forever $ do
   putStr "(repl@lapse)>> "
   hFlush stdout
   expr <- getLine
-  run expr
+  res <- run expr
+  putStrLn res
 
 executeFile :: String -> IO ()
 executeFile s = do
   exists <- fileExists s
   unless exists (error $ "No such file: " ++ s)
   expr <- readFile' s
-  run expr
+  _ <- run expr
+  pure ()
 
 notEmpty :: (Foldable t) => t a -> Bool
 notEmpty = not . null
