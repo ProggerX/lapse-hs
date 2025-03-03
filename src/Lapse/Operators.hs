@@ -162,6 +162,10 @@ lprint _ = error "Print need exactly one argument"
 lgetl :: Func IO
 lgetl = const (liftIO (String <$> getLine))
 
+unList :: Value m -> [Value m]
+unList Nil = []
+unList (Pair h t) = h : unList t
+unList _ = error "unList got wrong list"
+
 leval :: (Monad m) => Func m
-leval (Pair x Nil) = eval x
-leval _ = error "Eval need exactly one argument"
+leval = last . map eval . unList
