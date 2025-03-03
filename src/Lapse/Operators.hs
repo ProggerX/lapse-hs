@@ -7,8 +7,10 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
 import Lapse.Eval (eval, lmap')
+import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, Value (..))
+import System.IO (hFlush, stdout)
 
 pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
 pureFunc = (pure .)
@@ -159,8 +161,20 @@ lprint (Pair (String v) Nil) = liftIO $ putStrLn v >> pure Nil
 lprint (Pair v Nil) = liftIO $ print v >> pure Nil
 lprint _ = error "Print need exactly one argument"
 
+lwrite :: Func IO
+lwrite (Pair (String v) Nil) = liftIO $ putStr v >> pure Nil
+lwrite (Pair v Nil) = liftIO $ (putStr . show) v >> pure Nil
+lwrite _ = error "Write need exactly one argument :: String"
+
+lflush :: Func IO
+lflush = const $ liftIO $ hFlush stdout >> pure Nil
+
 lgetl :: Func IO
-lgetl = const (liftIO (String <$> getLine))
+lgetl = const $ liftIO $ String <$> getLine
+
+lread :: (Monad m) => Func m
+lread (Pair (String s) Nil) = pure $ head $ parse s
+lread _ = error "Read need exactly one argument :: String"
 
 unList :: Value m -> [Value m]
 unList Nil = []

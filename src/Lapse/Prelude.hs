@@ -37,13 +37,16 @@ prelude =
     , ("defn", Macros define)
     , ("macro", Macros macro)
     , ("defmacro", Macros defmacro)
+    , ("read", Function lread)
     ]
 
 ioPrelude :: Scope IO
 ioPrelude =
   fromList
     [ ("print", Function lprint)
+    , ("write", Function lwrite)
     , ("getline", Function lgetl)
+    , ("flush", Function lflush)
     ]
 
 initState :: (Monad m) => Scopes m
