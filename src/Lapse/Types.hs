@@ -2,13 +2,12 @@ module Lapse.Types where
 
 import Control.Monad.State (StateT)
 import Data.Char (isControl, isSpace)
-import Data.Functor.Identity (Identity)
 import Data.Map.Strict (Map)
 
 type Scope m = Map String (Value m)
 type Scopes m = [Scope m]
 
-type Func m = (Value m -> LapseM Identity (Value m))
+type Func m = (Value m -> LapseM m (Value m))
 
 data Value m
   = Nil

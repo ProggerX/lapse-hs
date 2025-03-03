@@ -4,7 +4,6 @@
 module Lapse.Scopes where
 
 import Control.Monad.State (gets, modify)
--- import Data.Bifunctor (first)
 import Data.Map.Strict ((!?))
 import Data.Map.Strict qualified as Map
 import Lapse.Types (LapseM, Scope, Scopes, Value (..))
