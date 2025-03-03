@@ -26,7 +26,7 @@ runExpression :: (Monad m) => String -> m [Value m]
 runExpression = evalLapseM . mapM eval . parse
 
 runExpression' :: (Monad m) => String -> m String
-runExpression' = (pure . show) <=< runExpression
+runExpression' = pure . show <=< runExpression
 
 evalLapseMIO :: LapseM IO a -> IO a
 evalLapseMIO = (`evalStateT` 0) . (`evalStateT` initIOState)
