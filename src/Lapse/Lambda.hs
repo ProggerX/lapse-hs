@@ -24,9 +24,10 @@ unName :: Value m -> String
 unName (Name s) = s
 unName v = error $ "Expected name, but got: " ++ show v
 
-mkFunction :: (Monad m) => [Value m] -> Value m -> LapseM m (Func m)
+mkFunction :: forall m. (Monad m) => [Value m] -> Value m -> LapseM m (Func m)
 mkFunction argsN' expr = gets f
  where
+  f :: (Monad m) => Scopes m -> Func m
   f ss args = do
     ns <- get
     let
