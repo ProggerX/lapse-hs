@@ -1,6 +1,6 @@
 module Lapse.Modules where
 
-import Control.Exception (SomeException (..), catch)
+import Control.Exception (onException)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (evalStateT, runStateT)
 import Data.Map.Strict (Map, empty, fromList, (!?))
@@ -12,9 +12,8 @@ import Lapse.Scopes (addScope, addScopes)
 import Lapse.Types (Func, LapseM, Scope, Scopes, Value (..))
 import System.IO (
   IOMode (ReadMode),
-  hClose,
-  openFile,
   readFile',
+  withFile,
  )
 
 std :: (Monad m) => Scope m
@@ -69,11 +68,7 @@ builtins =
 
 fileExists :: FilePath -> IO Bool
 fileExists path =
-  do
-    handle <- openFile path ReadMode
-    hClose handle
-    return True
-    `catch` (\(SomeException _) -> return False)
+  withFile path ReadMode (\_ -> pure True) `onException` pure False
 
 getScopesIO' :: LapseM IO a -> IO (Scopes IO)
 getScopesIO' = (snd <$>) . (`evalStateT` 0) . (`runStateT` initIOState)

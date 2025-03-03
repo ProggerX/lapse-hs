@@ -102,5 +102,5 @@ unList Nil = []
 unList (Pair h t) = h : unList t
 unList _ = error "Parse error in unList"
 
-parse :: (Monad m) => String -> [Value m]
+parse :: String -> [Value m]
 parse = unList . parse' [Nil] . tokenize
