@@ -5,10 +5,16 @@ module Lapse.Scopes where
 import Control.Monad.State (get, gets, put)
 import Data.Map.Strict ((!?))
 import Data.Map.Strict qualified as Map
-import Lapse.Types (LapseM, Scopes, Value (..))
+import Lapse.Types (LapseM, Scope, Scopes, Value (..))
 
 newScope :: (Monad m) => LapseM m ()
 newScope = get >>= put . (Map.empty :)
+
+addScope :: (Monad m) => Scope m -> LapseM m ()
+addScope = (get >>=) . (put .) . (:)
+
+addScopes :: (Monad m) => Scopes m -> LapseM m ()
+addScopes = (get >>=) . (put .) . (++) . foldr (:) []
 
 dropScope :: (Monad m) => LapseM m ()
 dropScope = get >>= put . tail

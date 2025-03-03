@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               lapse
-version:            1.0.2
+version:            1.1.0
 license:            GPL-3.0-only
 license-file:       LICENSE
 author:             ProggerX
@@ -19,8 +19,8 @@ library
     , Lapse.Scopes
     , Lapse.Types
     , Lapse.Lambda
-    , Lapse.Prelude
     , Lapse.Parser
+    , Lapse.Modules
   hs-source-dirs:
     src
   build-depends:

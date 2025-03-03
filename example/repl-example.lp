@@ -1,3 +1,5 @@
+(import "std" "io")
+
 (defn repl ()
 	(eval
 		(write "(repl@lapse)>> ")

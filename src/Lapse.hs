@@ -3,8 +3,8 @@ module Lapse where
 import Control.Monad ((<=<))
 import Control.Monad.State (evalStateT)
 import Lapse.Eval (eval)
+import Lapse.Modules (initIOState, initState)
 import Lapse.Parser (parse)
-import Lapse.Prelude (initIOState, initState)
 import Lapse.Types (LapseM, Value (..))
 
 list :: [Value m] -> Value m

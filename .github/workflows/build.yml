@@ -1,0 +1,83 @@
+name: Haskell CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: haskell-actions/setup@v2
+      with:
+        ghc-version: '9.6.6'
+        cabal-version: '3.12'
+
+    - name: Cache
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-cabal
+      with:
+        path: ~/.cabal
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: |
+        cabal update
+        cabal build --only-dependencies
+    - name: Build
+      run: cabal build
+    - name: Install
+      run: cabal install --installdir .
+    - uses: actions/upload-artifact@v4
+      with:
+        name: lapse-windows
+        path: |
+          lapse.exe
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: haskell-actions/setup@v2
+      with:
+        ghc-version: '9.6.6'
+        cabal-version: '3.12'
+
+    - name: Cache
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-cabal
+      with:
+        path: ~/.cabal
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: |
+        cabal update
+        cabal build --only-dependencies
+    - name: Build
+      run: cabal build --enable-executable-static
+    - name: Install
+      run: cabal install --installdir . --enable-executable-static
+    - uses: actions/upload-artifact@v4
+      with:
+        name: lapse-linux
+        path: |
+          lapse
