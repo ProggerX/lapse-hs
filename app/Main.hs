@@ -6,13 +6,7 @@ import Control.Monad (forever, unless)
 import Data.Function ((&))
 import Lapse (runExpression', runExpressionIO)
 import System.Environment (getArgs)
-import System.IO
-  ( IOMode (ReadMode),
-    hFlush,
-    readFile',
-    stdout,
-    withFile,
-  )
+import System.IO (IOMode (ReadMode), hFlush, readFile', stdout, withFile)
 import Prelude hiding (print, read)
 
 fileExists :: FilePath -> IO Bool
@@ -24,14 +18,17 @@ catchAny = catch . evaluate . force
 
 repl :: IO ()
 repl = read >>= eval >>= print & loop
-  where
-    read = do
-      putStr "(repl@lapse)>> "
-      hFlush stdout
-      getLine
-    eval expr = catchAny (runExpression' expr) (pure . pure . show)
-    print = putStrLn . head
-    loop = forever
+ where
+  read = do
+    putStr "(repl@lapse)>> "
+    hFlush stdout
+    getLine
+
+  eval expr = catchAny (runExpression' expr) (\exc -> pure [show exc])
+
+  print = putStrLn . head
+
+  loop = forever
 
 executeFile :: String -> IO ()
 executeFile s = do
@@ -41,8 +38,9 @@ executeFile s = do
   _ <- runExpressionIO expr
   pure ()
 
-notEmpty :: (Foldable t) => t a -> Bool
-notEmpty = not . null
-
 main :: IO ()
-main = getArgs >>= \x -> if not $ null x then executeFile $ head x else repl
+main = do
+  args <- getArgs
+  case args of
+    [] -> repl
+    x : _ -> executeFile x
