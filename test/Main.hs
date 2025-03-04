@@ -10,11 +10,11 @@ type PValue = Value Identity
 showTests :: [(PValue, String)]
 showTests =
   [ (numList [1, 2, 3], "(1 2 3)")
-  , (Pair (Number 1) (Pair (Number 2) (Number 3)), "(1 2 . 3)")
-  , (Pair (Pair (Number 1) (Number 2)) (Number 3), "((1 . 2) . 3)")
-  , (Pair (Pair (Number 1) (Number 2)) (Pair (Number 3) Nil), "((1 . 2) 3)")
+  , (Number 1 `Pair` Number 2 `Pair` Number 3, "(1 2 . 3)")
+  , ((Number 1 `Pair` Number 2) `Pair` Number 3, "((1 . 2) . 3)")
+  , ((Number 1 `Pair` Number 2) `Pair` Number 3 `Pair` Nil, "((1 . 2) 3)")
   , (Number 5, "5")
-  , (Pair (Number 5) Nil, "(5)")
+  , (Number 5 `Pair` Nil, "(5)")
   ]
 
 opTests :: [(LapseM Identity PValue, PValue)]

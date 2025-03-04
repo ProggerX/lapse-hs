@@ -1,17 +1,20 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Lapse.Operators where
 
+import Control.Arrow ((>>>))
 import Control.Lens ((<<+=))
 import Control.Monad.IO.Class (liftIO)
 import Data.Function (fix)
+import System.IO (hFlush, stdout)
+
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, Value (..))
-import System.IO (hFlush, stdout)
 
 pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
 pureFunc = (pure .)
@@ -20,47 +23,50 @@ pureFunc' :: (Monad m) => ((Value m -> Value m) -> Value m -> Value m) -> Func m
 pureFunc' = pureFunc . fix
 
 ladd :: (Monad m) => Func m
-ladd = pureFunc' \f -> \case
-  Nil -> Number 0
-  (Pair (Number a) b) ->
-    Number
-      ( a
-      + case f b of
-          Number x -> x
-          _ -> undefined
-      )
+ladd =
+  pureFunc' \f -> \case
+    Nil -> Number 0
+    Pair (Number a) b -> Number $ a + unNumberUnsafe (f b)
+    _ -> undefined
+
+unNumberUnsafe :: Value m -> Int
+unNumberUnsafe = \case
+  Number x -> x
   _ -> undefined
 
 lmul :: (Monad m) => Func m
 lmul = pureFunc' \f -> \case
   Nil -> Number 1
-  (Pair (Number a) b) ->
-    Number
-      ( a * case f b of
-          Number x -> x
-          _ -> undefined
-      )
+  Pair (Number a) b -> Number $ a * unNumberUnsafe (f b)
   _ -> undefined
 
 lsub :: (Monad m) => Func m
-lsub = pureFunc \case
-  (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
-  _ -> undefined
+lsub =
+  pureFunc $
+    unList >>> \case
+      [Number a, Number b] -> Number $ a - b
+      _ -> undefined
 
 ldiv :: (Monad m) => Func m
-ldiv = pureFunc \case
-  (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
-  _ -> undefined
+ldiv =
+  pureFunc $
+    unList >>> \case
+      [Number a, Number b] -> Number $ div a b
+      _ -> undefined
 
 lgrt :: (Monad m) => Func m
-lgrt = pureFunc \case
-  (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
-  _ -> undefined
+lgrt =
+  pureFunc $
+    unList >>> \case
+      [Number a, Number b] -> if a > b then Number 1 else Nil
+      _ -> undefined
 
 llss :: (Monad m) => Func m
-llss = pureFunc \case
-  (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
-  _ -> undefined
+llss =
+  pureFunc $
+    unList >>> \case
+      [Number a, Number b] -> if a < b then Number 1 else Nil
+      _ -> undefined
 
 leql :: (Monad m) => Func m
 leql = pureFunc \case
@@ -68,7 +74,9 @@ leql = pureFunc \case
   _ -> undefined
 
 lset :: (Monad m) => Func m
-lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
+lset (unList -> [Name k, v]) = do
+  eval v >>= changeValue k
+  pure Nil
 lset _ = error "Wrong argument for set"
 
 llet' :: (Monad m) => Func m

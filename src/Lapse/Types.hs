@@ -20,6 +20,8 @@ data Value m
   | Macros (Func m)
   deriving (Eq)
 
+infixr `Pair`
+
 instance Eq (Func m) where
   _ == _ = error "Can't compare functions"
 
