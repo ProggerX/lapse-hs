@@ -1,7 +1,7 @@
 module Lapse.Parser where
 
 import Data.Char (isDigit, isSpace)
-import Lapse.Types (Value (..), toListUnsafe)
+import Lapse.Types (Value (..), unwrapListUnsafe)
 
 add' :: (Monoid a, Eq a) => a -> [a] -> [a]
 add' s a = if s == mempty then a else s : a
@@ -98,4 +98,4 @@ parse' stack (t : ts) = case t of
 parse' stack [] = head stack
 
 parse :: String -> [Value m]
-parse = toListUnsafe . parse' [Nil] . tokenize
+parse = unwrapListUnsafe . parse' [Nil] . tokenize

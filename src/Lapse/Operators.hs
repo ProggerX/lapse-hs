@@ -12,7 +12,7 @@ import System.IO (hFlush, stdout)
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
-import Lapse.Types (Func, Value (..), toListUnsafe)
+import Lapse.Types (Func, Value (..), unwrapListUnsafe)
 
 pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
 pureFunc = (pure .)
@@ -117,10 +117,7 @@ lraw (Pair v Nil) = f v
  where
   f :: (Monad m) => Func m
   f (List [Name "unraw", b]) = eval b
-  f (Pair a b) = do
-    fa <- f a
-    fb <- f b
-    pure $ Pair fa fb
+  f (Pair a b) = Pair <$> f a <*> f b
   f x = pure x
 lraw _ = undefined
 
@@ -183,4 +180,4 @@ lread (Pair (String s) Nil) = pure $ head $ parse s
 lread _ = error "Read need exactly one argument :: String"
 
 leval :: (Monad m) => Func m
-leval = last . map eval . toListUnsafe
+leval = last . map eval . unwrapListUnsafe

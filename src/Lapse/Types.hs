@@ -9,10 +9,9 @@ module Lapse.Types (
   Scope,
   Scopes,
   Value (List, ..),
-  toListUnsafe,
+  unwrapListUnsafe,
 ) where
 
-import Control.Arrow ((>>>))
 import Control.Monad.State (StateT)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
@@ -37,20 +36,20 @@ data Value m
 
 infixr 9 `Pair`
 
-fromList :: [Value m] -> Value m
-fromList = foldr Pair Nil
+wrapList :: [Value m] -> Value m
+wrapList = foldr Pair Nil
 
-toList :: Value m -> Maybe [Value m]
-toList = \case
+unwrapList :: Value m -> Maybe [Value m]
+unwrapList = \case
   Nil -> Just []
-  Pair a b -> (a :) <$> toList b
+  Pair a b -> (a :) <$> unwrapList b
   _ -> Nothing
 
-toListUnsafe :: (HasCallStack) => Value m -> [Value m]
-toListUnsafe = toList >>> fromMaybe (error "value is not a list")
+unwrapListUnsafe :: (HasCallStack) => Value m -> [Value m]
+unwrapListUnsafe = fromMaybe (error "value is not a list") . unwrapList
 
 pattern List :: [Value m] -> Value m
-pattern List xs <- (toList -> Just xs) where List = fromList
+pattern List xs <- (unwrapList -> Just xs) where List = wrapList
 
 instance Eq (Func m) where
   _ == _ = error "Can't compare functions"
