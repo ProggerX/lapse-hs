@@ -1,14 +1,18 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 
 module Lapse.Scopes where
 
+import Control.Arrow ((>>>))
 import Control.Lens ((%=), _head)
 import Control.Monad.State (gets)
 import Data.Generics.Labels ()
 import Data.Map.Strict ((!?))
 import Data.Map.Strict qualified as Map
+import Data.Maybe (mapMaybe)
+
 import Lapse.Types (Env (Env), LapseM, Scope, Scopes, Value (..))
 import Lapse.Types qualified
 
@@ -28,11 +32,10 @@ changeValue :: (Monad m) => String -> Value m -> LapseM m ()
 changeValue k v = #scopes . _head %= Map.insert k v
 
 getValue' :: String -> Scopes m -> Value m
-getValue' k (s : ss) =
-  case s !? k of
-    Nothing -> getValue' k ss
-    Just x -> x
-getValue' k [] = error $ "getValue: no such key: " ++ k ++ "!"
+getValue' k =
+  mapMaybe (!? k) >>> \case
+    [] -> error $ "getValue: no such key: " ++ k ++ "!"
+    v : _ -> v
 
 getValue :: (Monad m) => String -> LapseM m (Value m)
 getValue k = gets \Env{scopes} -> getValue' k scopes

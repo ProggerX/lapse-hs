@@ -1,12 +1,13 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Lapse.Modules where
 
-import Control.Exception (SomeException (..), catch)
+import Control.Exception (onException)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State (runStateT)
+import Control.Monad.State (execStateT)
 import Data.Map.Strict (Map, empty, fromList, (!?))
+import System.IO (IOMode (ReadMode), readFile', withFile)
+
 import Lapse.Eval (eval)
 import Lapse.Lambda (define, defmacro, lambda, macro)
 import Lapse.Operators
@@ -14,12 +15,6 @@ import Lapse.Parser (parse)
 import Lapse.Scopes (addScope, addScopes)
 import Lapse.Types (Env (Env), Func, LapseM, Scope, Scopes, Value (..))
 import Lapse.Types qualified
-import System.IO (
-  IOMode (ReadMode),
-  hClose,
-  openFile,
-  readFile',
- )
 
 std :: (Monad m) => Scope m
 std =
@@ -73,31 +68,31 @@ builtins =
 
 fileExists :: FilePath -> IO Bool
 fileExists path =
-  do
-    handle <- openFile path ReadMode
-    hClose handle
-    return True
-    `catch` (\(SomeException _) -> return False)
+  withFile path ReadMode (\_ -> pure True) `onException` pure False
 
 getScopesIO' :: LapseM IO a -> IO (Scopes IO)
-getScopesIO' = fmap ((.scopes) . snd) <$> (`runStateT` Env{scopes = initIOState, counter = 0})
+getScopesIO' program = do
+  Env{scopes} <- execStateT program Env{scopes = initIOState, counter = 0}
+  pure scopes
 
 getScopesIO :: String -> IO (Scopes IO)
 getScopesIO = getScopesIO' . mapM eval . parse
 
 limport :: Func IO
-limport (Pair (String s) Nil) = case builtins !? s of
-  Just x -> addScope x >> pure Nil
-  Nothing -> do
-    exists <- liftIO $ fileExists s
-    if exists
-      then do
-        fileText <- liftIO $ readFile' s
-        scopes <- liftIO $ getScopesIO fileText
-        addScopes scopes
-        pure Nil
-      else error $ "Can't find module: " ++ s
-limport (Pair (String s) a) = limport (Pair (String s) Nil) >> limport a
+limport (Pair (String s) args) = do
+  case builtins !? s of
+    Just x -> addScope x
+    Nothing -> do
+      exists <- liftIO $ fileExists s
+      if exists
+        then do
+          fileText <- liftIO $ readFile' s
+          scopes <- liftIO $ getScopesIO fileText
+          addScopes scopes
+        else error $ "Can't find module: " ++ s
+  case args of
+    Nil -> pure Nil
+    _ -> limport args
 limport _ = error "import argument must be string"
 
 prelude :: Scope IO

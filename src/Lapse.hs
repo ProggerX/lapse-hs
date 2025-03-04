@@ -2,7 +2,6 @@
 
 module Lapse where
 
-import Control.Monad ((<=<))
 import Control.Monad.State (evalStateT)
 import Lapse.Eval (eval)
 import Lapse.Modules (initIOState, initState)
@@ -29,7 +28,7 @@ runExpression :: (Monad m) => String -> m [Value m]
 runExpression = evalLapseM . mapM eval . parse
 
 runExpression' :: (Monad m) => String -> m String
-runExpression' = pure . show <=< runExpression
+runExpression' input = show <$> runExpression input
 
 evalLapseMIO :: LapseM IO a -> IO a
 evalLapseMIO = (`evalStateT` Env{scopes = initIOState, counter = 0})
@@ -38,4 +37,4 @@ runExpressionIO :: String -> IO [Value IO]
 runExpressionIO = evalLapseMIO . mapM eval . parse
 
 runExpressionIO' :: String -> IO String
-runExpressionIO' = (pure . show) <=< runExpressionIO
+runExpressionIO' input = show <$> runExpressionIO input
