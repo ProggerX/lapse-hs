@@ -1,10 +1,11 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedLabels #-}
 
 module Lapse.Operators where
 
+import Control.Lens ((<<+=))
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
@@ -23,7 +24,8 @@ ladd = pureFunc' \f -> \case
   Nil -> Number 0
   (Pair (Number a) b) ->
     Number
-      ( a + case f b of
+      ( a
+      + case f b of
           Number x -> x
           _ -> undefined
       )
@@ -103,7 +105,9 @@ llist :: (Monad m) => Func m
 llist = pure
 
 gensym :: (Monad m) => Func m
-gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
+gensym Nil = do
+  x <- #counter <<+= 1
+  pure $ Name $ " sym" ++ show x
 gensym _ = undefined
 
 lraw :: (Monad m) => Func m

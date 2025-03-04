@@ -1,11 +1,17 @@
+{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DisambiguateRecordFields #-}
+
 module Lapse.Lambda where
 
+import Control.Lens ((.=))
 import Control.Monad ((<=<))
 import Control.Monad.State (get, gets, put)
 import Data.Map.Strict (fromList)
 import Lapse.Eval (eval)
 import Lapse.Operators (lset)
-import Lapse.Types (Func, LapseM, Scopes, Value (..))
+import Lapse.Types (Func, LapseM, Scopes, Value (..), Env(Env))
+import Lapse.Types qualified
 
 unList :: Value m -> [Value m]
 unList Nil = []
@@ -15,7 +21,7 @@ unList _ = error "Wrong lambda expression"
 inScopes :: (Monad m) => Scopes m -> Value m -> LapseM m (Value m)
 inScopes ss v = do
   oldScopes <- get
-  put ss
+  #scopes .= ss
   res <- eval v
   put oldScopes
   pure res
@@ -27,14 +33,14 @@ unName v = error $ "Expected name, but got: " ++ show v
 mkFunction :: (Monad m) => [Value m] -> Value m -> LapseM m (Func m)
 mkFunction argsN' expr = gets f
  where
-  f ss args = do
-    ns <- get
+  f Env{scopes} args = do
+    Env{scopes = innerScopes} <- get
     let
       argsV = unList args
       argsN = map unName argsN'
-      ss' = fromList (zip argsN argsV) : ss ++ ns
+      scopes' = fromList (zip argsN argsV) : scopes ++ innerScopes
      in
-      inScopes ss' expr
+      inScopes scopes' expr
 
 lambda :: (Monad m) => Func m
 lambda (Pair argN (Pair expr Nil)) =

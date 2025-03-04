@@ -3,6 +3,7 @@ module Lapse.Types where
 import Control.Monad.State (StateT)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
+import GHC.Generics (Generic)
 
 type Scope m = Map String (Value m)
 type Scopes m = [Scope m]
@@ -57,4 +58,7 @@ instance Show (Value m) where
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
-type LapseM m = StateT (Scopes m) (StateT Int m)
+data Env m = Env{scopes :: Scopes m, counter :: Int}
+  deriving Generic
+
+type LapseM m = StateT (Env m) m

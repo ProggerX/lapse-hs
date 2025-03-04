@@ -1,15 +1,19 @@
+{-# LANGUAGE DisambiguateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Lapse.Modules where
 
 import Control.Exception (SomeException (..), catch)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State (evalStateT, runStateT)
+import Control.Monad.State (runStateT)
 import Data.Map.Strict (Map, empty, fromList, (!?))
 import Lapse.Eval (eval)
 import Lapse.Lambda (define, defmacro, lambda, macro)
 import Lapse.Operators
 import Lapse.Parser (parse)
 import Lapse.Scopes (addScope, addScopes)
-import Lapse.Types (Func, LapseM, Scope, Scopes, Value (..))
+import Lapse.Types (Env (Env), Func, LapseM, Scope, Scopes, Value (..))
+import Lapse.Types qualified
 import System.IO (
   IOMode (ReadMode),
   hClose,
@@ -76,7 +80,7 @@ fileExists path =
     `catch` (\(SomeException _) -> return False)
 
 getScopesIO' :: LapseM IO a -> IO (Scopes IO)
-getScopesIO' = (snd <$>) . (`evalStateT` 0) . (`runStateT` initIOState)
+getScopesIO' = fmap ((.scopes) . snd) <$> (`runStateT` Env{scopes = initIOState, counter = 0})
 
 getScopesIO :: String -> IO (Scopes IO)
 getScopesIO = getScopesIO' . mapM eval . parse
