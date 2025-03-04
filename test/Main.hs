@@ -1,5 +1,5 @@
 import Data.Functor.Identity (Identity, runIdentity)
-import Lapse (evalLapseM, list, numList, runExpression')
+import Lapse (evalLapseM, numList, runExpression')
 import Lapse.Operators
 import Lapse.Types (LapseM, Value (..))
 import Test.Tasty (defaultMain, testGroup)
@@ -39,10 +39,10 @@ opTests =
 condTests :: [(PValue, PValue)]
 condTests =
   [ (Nil, Nil)
-  , (list [list [Number 1, Number 2], list [Number 2, Number 3], list [Number 3, Number 4]], Number 2)
-  , (list [list [Nil, Number 2], list [Number 2, Number 3], list [Number 3, Number 4]], Number 3)
-  , (list [list [Nil, Number 2], list [Nil, Number 3], list [Number 3, Number 4]], Number 4)
-  , (list [list [Nil, Number 2], list [Nil, Number 3], list [Nil, Number 4]], Nil)
+  , (List [List [Number 1, Number 2], List [Number 2, Number 3], List [Number 3, Number 4]], Number 2)
+  , (List [List [Nil, Number 2], List [Number 2, Number 3], List [Number 3, Number 4]], Number 3)
+  , (List [List [Nil, Number 2], List [Nil, Number 3], List [Number 3, Number 4]], Number 4)
+  , (List [List [Nil, Number 2], List [Nil, Number 3], List [Nil, Number 4]], Nil)
   ]
 
 exprTests :: [(String, String)]

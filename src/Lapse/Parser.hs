@@ -1,7 +1,7 @@
 module Lapse.Parser where
 
 import Data.Char (isDigit, isSpace)
-import Lapse.Types (Value (..))
+import Lapse.Types (Value (..), toListUnsafe)
 
 add' :: (Monoid a, Eq a) => a -> [a] -> [a]
 add' s a = if s == mempty then a else s : a
@@ -97,10 +97,5 @@ parse' stack (t : ts) = case t of
   _ -> parse' (Pair (parseToken t) (head stack) : tail stack) ts
 parse' stack [] = head stack
 
-unList :: Value m -> [Value m]
-unList Nil = []
-unList (Pair h t) = h : unList t
-unList _ = error "Parse error in unList"
-
 parse :: String -> [Value m]
-parse = unList . parse' [Nil] . tokenize
+parse = toListUnsafe . parse' [Nil] . tokenize

@@ -1,11 +1,9 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module Lapse.Operators where
 
-import Control.Arrow ((>>>))
 import Control.Lens ((<<+=))
 import Control.Monad.IO.Class (liftIO)
 import Data.Function (fix)
@@ -14,7 +12,7 @@ import System.IO (hFlush, stdout)
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
-import Lapse.Types (Func, Value (..))
+import Lapse.Types (Func, Value (..), toListUnsafe)
 
 pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
 pureFunc = (pure .)
@@ -42,39 +40,35 @@ lmul = pureFunc' \f -> \case
 
 lsub :: (Monad m) => Func m
 lsub =
-  pureFunc $
-    unList >>> \case
-      [Number a, Number b] -> Number $ a - b
-      _ -> undefined
+  pureFunc \case
+    List [Number a, Number b] -> Number $ a - b
+    _ -> undefined
 
 ldiv :: (Monad m) => Func m
 ldiv =
-  pureFunc $
-    unList >>> \case
-      [Number a, Number b] -> Number $ div a b
-      _ -> undefined
+  pureFunc \case
+    List [Number a, Number b] -> Number $ div a b
+    _ -> undefined
 
 lgrt :: (Monad m) => Func m
 lgrt =
-  pureFunc $
-    unList >>> \case
-      [Number a, Number b] -> if a > b then Number 1 else Nil
-      _ -> undefined
+  pureFunc \case
+    List [Number a, Number b] -> if a > b then Number 1 else Nil
+    _ -> undefined
 
 llss :: (Monad m) => Func m
 llss =
-  pureFunc $
-    unList >>> \case
-      [Number a, Number b] -> if a < b then Number 1 else Nil
-      _ -> undefined
+  pureFunc \case
+    List [Number a, Number b] -> if a < b then Number 1 else Nil
+    _ -> undefined
 
 leql :: (Monad m) => Func m
 leql = pureFunc \case
-  (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
+  List [a, b] -> if a == b then Number 1 else Nil
   _ -> undefined
 
 lset :: (Monad m) => Func m
-lset (unList -> [Name k, v]) = do
+lset (List [Name k, v]) = do
   eval v >>= changeValue k
   pure Nil
 lset _ = error "Wrong argument for set"
@@ -94,15 +88,15 @@ llet v = newScope *> llet' v <* dropScope
 cond :: (Monad m) => Func m
 cond = \case
   Nil -> pure Nil
-  (Pair (Pair c (Pair r Nil)) els) ->
+  List [c, r] `Pair` els ->
     eval c >>= \case
       Nil -> cond els
       _ -> eval r
   _ -> undefined
 
 lmap :: (Monad m) => Func m
-lmap (Pair (Function f) (Pair oth Nil)) = lmap' f oth
-lmap (Pair (Macros f) (Pair oth Nil)) = lmap' f oth
+lmap (List [Function f, oth]) = lmap' f oth
+lmap (List [Macros f, oth]) = lmap' f oth
 lmap _ = undefined
 
 ldouble :: (Monad m) => Func m
@@ -122,11 +116,11 @@ lraw :: (Monad m) => Func m
 lraw (Pair v Nil) = f v
  where
   f :: (Monad m) => Func m
-  f (Pair (Name "unraw") (Pair b Nil)) = eval b
+  f (List [Name "unraw", b]) = eval b
   f (Pair a b) = do
     fa <- f a
     fb <- f b
-    pure (Pair fa fb)
+    pure $ Pair fa fb
   f x = pure x
 lraw _ = undefined
 
@@ -188,10 +182,5 @@ lread :: (Monad m) => Func m
 lread (Pair (String s) Nil) = pure $ head $ parse s
 lread _ = error "Read need exactly one argument :: String"
 
-unList :: Value m -> [Value m]
-unList Nil = []
-unList (Pair h t) = h : unList t
-unList _ = error "unList got wrong list"
-
 leval :: (Monad m) => Func m
-leval = last . map eval . unList
+leval = last . map eval . toListUnsafe

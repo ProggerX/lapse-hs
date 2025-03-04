@@ -1,9 +1,24 @@
-module Lapse.Types where
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ViewPatterns #-}
 
+module Lapse.Types (
+  Env (..),
+  Func,
+  LapseM,
+  Scope,
+  Scopes,
+  Value (List, ..),
+  toListUnsafe,
+) where
+
+import Control.Arrow ((>>>))
 import Control.Monad.State (StateT)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
+import GHC.Stack (HasCallStack)
 
 type Scope m = Map String (Value m)
 type Scopes m = [Scope m]
@@ -20,7 +35,22 @@ data Value m
   | Macros (Func m)
   deriving (Eq)
 
-infixr `Pair`
+infixr 9 `Pair`
+
+fromList :: [Value m] -> Value m
+fromList = foldr Pair Nil
+
+toList :: Value m -> Maybe [Value m]
+toList = \case
+  Nil -> Just []
+  Pair a b -> (a :) <$> toList b
+  _ -> Nothing
+
+toListUnsafe :: (HasCallStack) => Value m -> [Value m]
+toListUnsafe = toList >>> fromMaybe (error "value is not a list")
+
+pattern List :: [Value m] -> Value m
+pattern List xs <- (toList -> Just xs) where List = fromList
 
 instance Eq (Func m) where
   _ == _ = error "Can't compare functions"
@@ -60,7 +90,7 @@ instance Show (Value m) where
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
-data Env m = Env{scopes :: Scopes m, counter :: Int}
-  deriving Generic
+data Env m = Env {scopes :: Scopes m, counter :: Int}
+  deriving (Generic)
 
 type LapseM m = StateT (Env m) m

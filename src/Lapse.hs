@@ -9,14 +9,11 @@ import Lapse.Parser (parse)
 import Lapse.Types (Env (Env), LapseM, Value (..))
 import Lapse.Types qualified
 
-list :: [Value m] -> Value m
-list = foldr Pair Nil
-
 numList :: [Int] -> Value m
-numList = list . map Number
+numList = List . map Number
 
 list' :: [Value m] -> Value m
-list' = Pair (Name "list") . list
+list' = Pair (Name "list") . List
 
 numList' :: [Int] -> Value m
 numList' = list' . map Number
