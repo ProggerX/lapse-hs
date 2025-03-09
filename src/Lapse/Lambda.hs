@@ -7,10 +7,20 @@ import Lapse.Eval (eval)
 import Lapse.Operators (lset)
 import Lapse.Types (Func, LapseM, Scopes, Value (..))
 
-unList :: Value m -> [Value m]
-unList Nil = []
-unList (Pair h t) = h : unList t
-unList _ = error "Wrong lambda expression"
+data UnList m = Proper [Value m] | Improper ([Value m], Value m) | Single (Value m) deriving (Show)
+
+unList :: Value m -> UnList m
+unList Nil = Proper []
+unList (Pair h t) = case unList t of
+  Proper x -> Proper $ h : x
+  Improper (x, y) -> Improper (h : x, y)
+  Single x -> Improper ([h], x)
+unList v = Single v
+
+unList' :: Value m -> [Value m]
+unList' x = case unList x of
+  Proper a -> a
+  _ -> error "Impossible"
 
 inScopes :: (Monad m) => Scopes m -> Value m -> LapseM m (Value m)
 inScopes ss v = do
@@ -31,8 +41,11 @@ mkFunction argsN'' expr = gets f
   f ss args = do
     ns <- get
     let
-      argsV = unList args
-      argsN' = unList argsN''
+      argsV = unList' args
+      argsN' = case unList argsN'' of
+        Proper x -> x
+        Improper _ -> error "Not yet implemented #1"
+        Single _ -> error "Not yet implemented #2"
       argsN = map unName argsN'
       ss' = fromList (zip argsN argsV) : ss ++ ns
      in
