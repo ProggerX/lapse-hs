@@ -24,14 +24,15 @@ unName :: Value m -> String
 unName (Name s) = s
 unName v = error $ "Expected name, but got: " ++ show v
 
-mkFunction :: forall m. (Monad m) => [Value m] -> Value m -> LapseM m (Func m)
-mkFunction argsN' expr = gets f
+mkFunction :: forall m. (Monad m) => Value m -> Value m -> LapseM m (Func m)
+mkFunction argsN'' expr = gets f
  where
   f :: (Monad m) => Scopes m -> Func m
   f ss args = do
     ns <- get
     let
       argsV = unList args
+      argsN' = unList argsN''
       argsN = map unName argsN'
       ss' = fromList (zip argsN argsV) : ss ++ ns
      in
@@ -39,10 +40,7 @@ mkFunction argsN' expr = gets f
 
 lambda :: (Monad m) => Func m
 lambda (Pair argN (Pair expr Nil)) =
-  let
-    argN' = unList argN
-   in
-    Function <$> mkFunction argN' expr
+  Function <$> mkFunction argN expr
 lambda _ = error "Wrong lambda expression"
 
 define :: (Monad m) => Func m
@@ -50,13 +48,9 @@ define (Pair (Name fname) ls@(Pair _ (Pair _ Nil))) = lambda ls >>= \x -> lset (
 define _ = error "Wrong define expression"
 
 macro :: (Monad m) => Func m
-macro (Pair argN (Pair expr Nil)) =
-  let
-    argN' = unList argN
-   in
-    do
-      m <- mkFunction argN' expr
-      pure $ Macros (eval <=< m)
+macro (Pair argN (Pair expr Nil)) = do
+  m <- mkFunction argN expr
+  pure $ Macros (eval <=< m)
 macro _ = error "Wrong macro expression"
 
 defmacro :: (Monad m) => Func m
