@@ -35,21 +35,28 @@ unName (Name s) = s
 unName v = error $ "Expected name, but got: " ++ show v
 
 mkFunction :: forall m. (Monad m) => Value m -> Value m -> LapseM m (Func m)
-mkFunction argsN'' expr = gets f
+mkFunction argsN' expr = gets f
  where
+  list = foldr Pair Nil
   f :: (Monad m) => Scopes m -> Func m
   f ss args = do
     ns <- get
     let
       argsV = unList' args
-      argsN' = case unList argsN'' of
-        Proper x -> x
-        Improper _ -> error "Not yet implemented #1"
-        Single _ -> error "Not yet implemented #2"
-      argsN = map unName argsN'
-      ss' = fromList (zip argsN argsV) : ss ++ ns
+      argsN'' = unList argsN'
      in
-      inScopes ss' expr
+      case argsN'' of
+        Proper argsN ->
+          let a = map unName argsN
+              ss' = fromList (zip a argsV) : ss ++ ns
+           in inScopes ss' expr
+        Improper (argsN, rest) ->
+          let a = map unName argsN
+              zipSS = fromList (zip a argsV) : ss
+              ln = length argsV - length argsN
+              ss' = zipSS ++ (fromList [(unName rest, list $ drop ln argsV)] : ns)
+           in inScopes ss' expr
+        Single v -> inScopes (fromList [(unName v, list argsV)] : ns) expr
 
 lambda :: (Monad m) => Func m
 lambda (Pair argN (Pair expr Nil)) =
