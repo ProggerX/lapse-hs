@@ -1,0 +1,5 @@
+(import "web" "io" "std")
+(set r (get "http://bald.su"))
+(print r)
+(print "...")
+(print (body r))

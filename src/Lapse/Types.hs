@@ -1,6 +1,7 @@
 module Lapse.Types where
 
 import Control.Monad.State (StateT)
+import Data.ByteString.Lazy (ByteString)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
 
@@ -17,6 +18,7 @@ data Value m
   | String String
   | Function (Func m)
   | Macros (Func m)
+  | WResponse {body :: ByteString, status :: Int}
   deriving (Eq)
 
 instance Eq (Func m) where
@@ -53,6 +55,7 @@ instance Show (Value m) where
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
   show (Macros _) = "<macros>"
+  show (WResponse{status}) = "WResponse, status: " ++ show status
 
 surround :: String -> String
 surround s = "(" ++ s ++ ")"

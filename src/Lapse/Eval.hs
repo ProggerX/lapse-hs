@@ -21,6 +21,7 @@ eval = \case
   x@(String _) -> pure x
   x@(Function _) -> pure x
   x@(Macros _) -> pure x
+  x@(WResponse _ _) -> pure x
   p@(Pair x args) ->
     eval x >>= \case
       (Macros m) -> m args

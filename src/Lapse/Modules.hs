@@ -10,6 +10,7 @@ import Lapse.Operators
 import Lapse.Parser (parse)
 import Lapse.Scopes (addScope, addScopes)
 import Lapse.Types (Func, LapseM, Scope, Scopes, Value (..))
+import Lapse.Web qualified as Web
 import System.IO (
   IOMode (ReadMode),
   readFile',
@@ -64,6 +65,7 @@ builtins =
   fromList
     [ ("std", std)
     , ("io", io)
+    , ("web", Web.mod)
     ]
 
 fileExists :: FilePath -> IO Bool

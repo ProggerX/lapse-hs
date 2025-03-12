@@ -29,6 +29,8 @@ library
     , containers
     , mtl
     , wreq
+    , bytestring
+    , lens
   default-language: GHC2021
 
 test-suite test
