@@ -32,6 +32,9 @@ instance Eq TBox where
       Just a' -> a' == b
       Nothing -> False
 
+ext :: (Typeable a, Show a, Eq a) => a -> Value m
+ext = External . TBox
+
 show' :: Value m -> String
 show' (Pair a@(Pair _ _) Nil) = surround $ show' a
 show' (Pair a Nil) = show' a

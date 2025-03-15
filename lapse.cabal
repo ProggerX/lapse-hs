@@ -30,7 +30,9 @@ library
     , mtl
     , wreq
     , bytestring
+    , text
     , lens
+    , case-insensitive
   default-language: GHC2021
 
 test-suite test
