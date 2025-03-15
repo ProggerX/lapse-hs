@@ -22,6 +22,9 @@ library
     , Lapse.Parser
     , Lapse.Modules
     , Lapse.Web
+    , Lapse.Web.Client
+    , Lapse.Web.Server
+    , Lapse.Web.Types
   hs-source-dirs:
     src
   build-depends:
@@ -33,6 +36,8 @@ library
     , text
     , lens
     , case-insensitive
+    , warp
+    , minion
   default-language: GHC2021
 
 test-suite test
