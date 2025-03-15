@@ -93,6 +93,10 @@ parse' stack (t : ts) = case t of
         el' = snd'' h
         tl = tail stack
      in parse' (Pair (Pair (Name "raw") (Pair el Nil)) el' : tl) ts
+  "$" ->
+    let h = head stack
+        tl = tail stack
+     in parse' (Pair h Nil : tl) ts
   "." -> parse' (fst' (head stack) : tail stack) ts
   _ -> parse' (Pair (parseToken t) (head stack) : tail stack) ts
 parse' stack [] = head stack
