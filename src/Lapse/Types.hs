@@ -1,14 +1,16 @@
 module Lapse.Types where
 
 import Control.Monad.State (StateT)
-import Data.ByteString.Lazy (ByteString)
 import Data.Char (isControl, isSpace)
 import Data.Map.Strict (Map)
+import Data.Typeable (Typeable, cast)
 
 type Scope m = Map String (Value m)
 type Scopes m = [Scope m]
 
 type Func m = (Value m -> LapseM m (Value m))
+
+data TBox = forall a. (Typeable a, Show a, Eq a) => TBox a
 
 data Value m
   = Nil
@@ -18,11 +20,17 @@ data Value m
   | String String
   | Function (Func m)
   | Macros (Func m)
-  | WResponse {body :: ByteString, status :: Int}
+  | External TBox
   deriving (Eq)
 
 instance Eq (Func m) where
   _ == _ = error "Can't compare functions"
+
+instance Eq TBox where
+  (TBox a) == (TBox b) =
+    case cast a of
+      Just a' -> a' == b
+      Nothing -> False
 
 show' :: Value m -> String
 show' (Pair a@(Pair _ _) Nil) = surround $ show' a
@@ -55,7 +63,7 @@ instance Show (Value m) where
   show pr@(Pair _ _) = surround $ show' pr
   show (Function _) = "<function>"
   show (Macros _) = "<macros>"
-  show (WResponse{status}) = "WResponse, status: " ++ show status
+  show (External (TBox a)) = show a
 
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
