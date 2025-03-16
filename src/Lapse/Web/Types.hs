@@ -1,6 +1,7 @@
 module Lapse.Web.Types where
 
 import Data.ByteString.Lazy qualified as BS
+import Data.Map.Strict (Map)
 
 data WRequest = WRequest
   { headers :: [(String, [String])]
@@ -16,3 +17,13 @@ instance Show WRequest where
 data WResponse = WResponse {status :: Int, body :: BS.ByteString} deriving (Eq)
 instance Show WResponse where
   show WResponse{status} = "WResponse, status: " ++ show status
+
+type URL = (String, Map String String)
+
+data WServer = WServer {port :: Int, routesGET :: Map String ([String], [String] -> IO BS.ByteString)}
+
+instance Eq WServer where
+  _ == _ = error "Can't compare servers"
+
+instance Show WServer where
+  show WServer{port} = "WServer on port" ++ show port

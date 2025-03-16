@@ -29,7 +29,8 @@ executeFile :: String -> IO ()
 executeFile s = do
   exists <- fileExists s
   unless exists $ error $ "No such file: " ++ s
-  expr <- readFile' s
+  file <- readFile' s
+  let expr = unwords $ filter (\x -> not (null x) && head x /= '-') $ lines file
   _ <- runExpressionIO expr
   pure ()
 
