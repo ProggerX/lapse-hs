@@ -25,6 +25,7 @@ library
     , Lapse.Web.Client
     , Lapse.Web.Server
     , Lapse.Web.Types
+    , Lapse.Json
   hs-source-dirs:
     src
   build-depends:
@@ -39,6 +40,9 @@ library
     , warp
     , wai
     , http-types
+    , aeson
+    , text
+    , vector
   default-language: GHC2021
 
 test-suite test

@@ -19,6 +19,7 @@ eval = \case
   Name x -> getValue x
   x@(Number _) -> pure x
   x@(String _) -> pure x
+  x@(Dict _) -> pure x
   x@(Function _) -> pure x
   x@(Macros _) -> pure x
   x@(External _) -> pure x

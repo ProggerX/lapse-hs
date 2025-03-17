@@ -6,6 +6,7 @@ module Lapse.Operators where
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
+import Data.Map.Strict (Map, empty, insert, (!))
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
@@ -183,3 +184,31 @@ unList _ = error "unList got wrong list"
 
 leval :: (Monad m) => Func m
 leval = last . map eval . unList
+
+unDict :: (Monad m) => Value m -> Map String (Value m)
+unDict (Dict d) = d
+unDict _ = undefined
+
+ldict :: (Monad m) => Func m
+ldict Nil = pure $ Dict empty
+ldict (Pair (Pair k (Pair v Nil)) rest) = do
+  v' <- eval v
+  Dict . insert k' v' . unDict <$> ldict rest
+ where
+  k' = case k of
+    String s -> s
+    Name s -> s
+    _ -> error "Key should be either string or name"
+ldict _ = error "Wrong dict expression"
+
+llkp :: (Monad m) => Func m
+llkp (Pair k' (Pair d' Nil)) = do
+  a <- eval d'
+  let d = case a of
+        Dict x -> x
+        _ -> error "Wrong lookup expression. Syntax: lookup <key> <dict>"
+  case k' of
+    String k -> pure $ d ! k
+    Name k -> pure $ d ! k
+    _ -> llkp Nil
+llkp _ = error "Wrong lookup expression. Syntax: lookup <key> <dict>"

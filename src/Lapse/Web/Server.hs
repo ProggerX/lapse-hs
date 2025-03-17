@@ -40,6 +40,10 @@ splitOn delimiter str =
         [] -> []
         (_ : xs) -> splitOn delimiter xs
 
+unString' :: Value m -> String
+unString' (String s) = s
+unString' v = show v
+
 lroutG :: Func IO
 lroutG (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox srv)) Nil)))) = do
   st <- get
@@ -56,7 +60,7 @@ lroutG (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox s
                         ( x
                         , (`evalStateT` cnt)
                             . (`evalStateT` st)
-                            . fmap (BCL.pack . show)
+                            . fmap (BCL.pack . unString')
                             . f
                             . foldr (Pair . String) Nil
                         )
@@ -67,7 +71,7 @@ lroutG (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox s
             Proper args -> tm $ map unString args
             _ -> lroutG Nil
     Nothing -> lroutG Nil
-lroutG _ = error "routeGET error, valid syntax: routeGet <url> <args> <func>"
+lroutG _ = error "routeGET error, valid syntax: routeGET <url> <args> <func>"
 
 respond :: WServer -> URL -> IO W.Response
 respond WServer{routesGET} (url, params) =

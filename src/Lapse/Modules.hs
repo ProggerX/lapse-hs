@@ -5,6 +5,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (evalStateT, runStateT)
 import Data.Map.Strict (Map, empty, fromList, (!?))
 import Lapse.Eval (eval)
+import Lapse.Json qualified as Json
 import Lapse.Lambda (define, defmacro, lambda, macro)
 import Lapse.Operators
 import Lapse.Parser (parse)
@@ -49,6 +50,8 @@ std =
     , ("macro", Macros macro)
     , ("defmacro", Macros defmacro)
     , ("read", Function lread)
+    , ("dict", Macros ldict)
+    , ("lookup", Macros llkp)
     ]
 
 io :: Scope IO
@@ -66,6 +69,7 @@ builtins =
     [ ("std", std)
     , ("io", io)
     , ("web", Web.mod)
+    , ("json", Json.mod)
     ]
 
 fileExists :: FilePath -> IO Bool
