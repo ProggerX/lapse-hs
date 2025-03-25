@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               lapse
-version:            1.2.1
+version:            1.4.0
 license:            GPL-3.0-only
 license-file:       LICENSE
 author:             ProggerX
