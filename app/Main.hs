@@ -1,9 +1,8 @@
 module Main where
 
-import Control.DeepSeq (NFData, force)
-import Control.Exception (SomeException (..), catch, evaluate)
 import Control.Monad (forever, unless)
-import Lapse (runExpression', runExpressionIO)
+import Data.Function ((&))
+import Lapse (runExpression, runExpressionR')
 import Lapse.Modules (fileExists)
 import System.Environment (getArgs)
 import System.IO (
@@ -12,18 +11,16 @@ import System.IO (
   stdout,
  )
 
-catchAny :: (NFData (m String)) => m String -> (SomeException -> IO (m String)) -> IO (m String)
-catchAny = catch . evaluate . force
-
 repl :: IO ()
-repl = forever $ read' >>= eval >>= print'
+repl = r >>= e >>= p & l
  where
-  read' = do
+  r = do
     putStr "(repl@lapse)>> "
     hFlush stdout
     getLine
-  eval expr = catchAny (runExpression' expr) (pure . pure . show)
-  print' = putStrLn . head
+  e = runExpressionR'
+  p = putStrLn
+  l = forever
 
 executeFile :: String -> IO ()
 executeFile s = do
@@ -31,7 +28,7 @@ executeFile s = do
   unless exists $ error $ "No such file: " ++ s
   file <- readFile' s
   let expr = unwords $ filter (\x -> not (null x) && head x /= '-') $ lines file
-  _ <- runExpressionIO expr
+  _ <- runExpression expr
   pure ()
 
 notEmpty :: (Foldable t) => t a -> Bool

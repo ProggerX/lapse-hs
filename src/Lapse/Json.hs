@@ -14,7 +14,8 @@ mod =
     ]
 
 lenc :: (Monad m) => Func m
-lenc = pure . String . unpack . A.encode
+lenc (Pair v Nil) = pure $ String $ unpack $ A.encode v
+lenc _ = error "encode accepts only one value"
 
 ldec :: (Monad m) => Func m
 ldec (Pair (String s) Nil) = pure $ fromMaybe Nil $ A.decode $ pack s

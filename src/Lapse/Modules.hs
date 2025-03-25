@@ -102,8 +102,8 @@ prelude =
   fromList
     [("import", Macros limport)]
 
-initState :: (Monad m) => Scopes m
-initState = [empty, std]
+replState :: Scopes IO
+replState = [empty, prelude, std]
 
 initIOState :: Scopes IO
 initIOState = [empty, prelude]
