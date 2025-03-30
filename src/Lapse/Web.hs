@@ -3,7 +3,9 @@ module Lapse.Web where
 import Data.Map.Strict (fromList)
 import Lapse.Types (Scope, Value (..))
 import Lapse.Web.Client
-import Lapse.Web.Server
+import Lapse.Web.Server (lserve, lserver)
+import Lapse.Web.Server.Get (lroutG)
+import Lapse.Web.Server.Post (lroutP)
 
 mod :: Scope IO
 mod =
@@ -19,5 +21,6 @@ mod =
     , -- --------------------------------
       ("serve", Function lserve)
     , ("routeGET", Function lroutG)
+    , ("routePOST", Function lroutP)
     , ("server", Function lserver)
     ]

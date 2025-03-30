@@ -20,7 +20,13 @@ instance Show WResponse where
 
 type URL = (String, Map String String)
 
-data WServer = WServer {port :: Int, routesGET :: Map String ([String], [String] -> IO BS.ByteString)}
+type WBody = String
+
+data WServer = WServer
+  { port :: Int
+  , routesGET :: Map String ([String], [String] -> IO BS.ByteString)
+  , routesPOST :: Map String ([String], WBody -> [String] -> IO BS.ByteString)
+  }
 
 instance Eq WServer where
   _ == _ = error "Can't compare servers"
