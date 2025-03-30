@@ -1,10 +1,15 @@
 import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
+import Control.Monad.State (evalStateT)
 import Data.Functor.Identity (Identity, runIdentity)
-import Lapse (evalLapseM, list, numList, runExpression')
+import Data.Map.Strict (empty)
+import Lapse (list, numList)
+import Lapse.Eval (eval)
+import Lapse.Modules (std)
 import Lapse.Operators
-import Lapse.Types (Func, LapseM, Value (..))
+import Lapse.Parser (parse)
+import Lapse.Types (Func, LapseM, Scopes, Value (..))
 
 type PValue = Value Identity
 
@@ -53,6 +58,15 @@ exprTests =
   , ("(let ((a 1) (b 2) (c 3)) '(,a ,b ,c ,(+ a b c)))", "[(1 2 3 6)]")
   , ("(let ((a \"stra\") (b \"bstr\")) (concat a b))", "[\"strabstr\"]")
   ]
+
+st :: Scopes Identity
+st = [empty, std]
+
+evalLapseM :: LapseM Identity a -> Identity a
+evalLapseM = (`evalStateT` 0) . (`evalStateT` st)
+
+runExpression' :: String -> Identity String
+runExpression' = (show <$>) . evalLapseM . mapM eval . parse
 
 main :: IO ()
 main =

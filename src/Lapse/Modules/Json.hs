@@ -1,4 +1,4 @@
-module Lapse.Json where
+module Lapse.Modules.Json where
 
 import Data.Aeson qualified as A
 import Data.ByteString.Lazy.Char8 (pack, unpack)

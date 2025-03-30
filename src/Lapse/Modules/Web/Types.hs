@@ -1,4 +1,4 @@
-module Lapse.Web.Types where
+module Lapse.Modules.Web.Types where
 
 import Data.ByteString.Lazy qualified as BS
 import Data.Map.Strict (Map)

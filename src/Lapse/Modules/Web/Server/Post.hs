@@ -1,12 +1,12 @@
-module Lapse.Web.Server.Get where
+module Lapse.Modules.Web.Server.Post where
 
 import Control.Monad.State (evalStateT, get, lift)
 import Data.ByteString.Lazy.Char8 qualified as BCL
 import Data.Map.Strict (insert)
 import Data.Typeable (cast)
 import Lapse.Lambda (UnList (..), unList)
+import Lapse.Modules.Web.Types (WServer (..))
 import Lapse.Types (Func, TBox (..), Value (..), ext)
-import Lapse.Web.Types (WServer (..))
 
 unString :: Value m -> String
 unString (String s) = s
@@ -16,31 +16,32 @@ unString' :: Value m -> String
 unString' (String s) = s
 unString' v = show v
 
-lroutG :: Func IO
-lroutG (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox srv)) Nil)))) = do
+lroutP :: Func IO
+lroutP (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox srv)) Nil)))) = do
   st <- get
   cnt <- lift get
   case cast @_ @WServer srv of
-    Just s@WServer{routesGET} ->
+    Just s@WServer{routesPOST} ->
       let tm x =
             pure $
               ext
                 s
-                  { routesGET =
+                  { routesPOST =
                       insert
                         url
                         ( x
-                        , (`evalStateT` cnt)
-                            . (`evalStateT` st)
-                            . fmap (BCL.pack . unString')
-                            . f
-                            . foldr (Pair . String) Nil
+                        , \body params ->
+                            (`evalStateT` cnt)
+                              . (`evalStateT` st)
+                              . fmap (BCL.pack . unString')
+                              . f
+                              $ foldr (Pair . String) Nil (body : params)
                         )
-                        routesGET
+                        routesPOST
                   }
        in case unList args' of
             Single (String arg) -> tm [arg]
             Proper args -> tm $ map unString args
-            _ -> lroutG Nil
-    Nothing -> lroutG Nil
-lroutG _ = error "routeGET error, valid syntax: routeGET <url> <args> <func>"
+            _ -> lroutP Nil
+    Nothing -> lroutP Nil
+lroutP _ = error "routeGET error, valid syntax: routeGET <url> <args> <func>"

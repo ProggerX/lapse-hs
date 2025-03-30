@@ -1,14 +1,14 @@
 {-# LANGUAGE BlockArguments #-}
 
-module Lapse.Web.Server where
+module Lapse.Modules.Web.Server where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.ByteString.Char8 qualified as BC
 import Data.ByteString.Lazy.Char8 qualified as BCL
 import Data.Map.Strict (elems, empty, fromList, keys, (!?))
 import Data.Typeable (cast)
+import Lapse.Modules.Web.Types (URL, WBody, WServer (..))
 import Lapse.Types (Func, TBox (..), Value (..), ext)
-import Lapse.Web.Types (URL, WBody, WServer (..))
 import Network.HTTP.Types (status200, status400, status404, urlDecode)
 import Network.Wai qualified as W
 import Network.Wai.Handler.Warp qualified as WRP

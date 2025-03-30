@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Lapse.Web.Client where
+module Lapse.Modules.Web.Client where
 
 import Control.Lens ((.~), (^.))
 import Control.Monad.IO.Class (liftIO)
@@ -11,8 +11,8 @@ import Data.CaseInsensitive (mk)
 import Data.Text qualified as T
 import Data.Typeable (cast)
 import Lapse.Lambda (UnList (..), unList)
+import Lapse.Modules.Web.Types (WRequest (..), WResponse (..))
 import Lapse.Types (Func, TBox (..), Value (..), ext)
-import Lapse.Web.Types (WRequest (..), WResponse (..))
 import Network.Wreq (responseBody, responseStatus, statusCode)
 import Network.Wreq qualified as W
 

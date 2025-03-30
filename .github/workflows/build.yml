@@ -10,8 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
-
+  test:
     runs-on: windows-latest
 
     steps:
@@ -20,19 +19,21 @@ jobs:
       with:
         ghc-version: '9.6.6'
         cabal-version: '3.12'
-
-    - name: Cache
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-cabal
+    - name: Install dependencies
+      run: |
+        cabal update
+        cabal build --only-dependencies
+    - name: Test
+      run: cabal test
+  build:
+    runs-on: windows-latest
+    needs: [test]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: haskell-actions/setup@v2
       with:
-        path: ~/.cabal
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-
+        ghc-version: '9.6.6'
+        cabal-version: '3.12'
     - name: Install dependencies
       run: |
         cabal update
@@ -48,26 +49,13 @@ jobs:
           lapse.exe
   build-linux:
     runs-on: ubuntu-latest
-
+    needs: [test]
     steps:
     - uses: actions/checkout@v4
     - uses: haskell-actions/setup@v2
       with:
         ghc-version: '9.6.6'
         cabal-version: '3.12'
-
-    - name: Cache
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-cabal
-      with:
-        path: ~/.cabal
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-
     - name: Install dependencies
       run: |
         cabal update

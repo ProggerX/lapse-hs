@@ -21,13 +21,13 @@ library
     , Lapse.Lambda
     , Lapse.Parser
     , Lapse.Modules
-    , Lapse.Web
-    , Lapse.Web.Client
-    , Lapse.Web.Server
-    , Lapse.Web.Server.Get
-    , Lapse.Web.Server.Post
-    , Lapse.Web.Types
-    , Lapse.Json
+    , Lapse.Modules.Web
+    , Lapse.Modules.Web.Client
+    , Lapse.Modules.Web.Server
+    , Lapse.Modules.Web.Server.Get
+    , Lapse.Modules.Web.Server.Post
+    , Lapse.Modules.Web.Types
+    , Lapse.Modules.Json
   hs-source-dirs:
     src
   build-depends:
@@ -53,7 +53,9 @@ test-suite test
   main-is: Main.hs
   build-depends:
     base >=4.18.2.1 && <4.20
+    , containers
     , lapse
+    , mtl
     , tasty
     , tasty-hunit
   default-language: GHC2021
