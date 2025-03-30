@@ -28,6 +28,7 @@ library
     , Lapse.Modules.Web.Server.Post
     , Lapse.Modules.Web.Types
     , Lapse.Modules.Json
+    , Lapse.Modules.FS
   hs-source-dirs:
     src
   build-depends:

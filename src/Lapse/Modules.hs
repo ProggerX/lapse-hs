@@ -5,13 +5,14 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (evalStateT, runStateT)
 import Data.Map.Strict (Map, empty, fromList, (!?))
 import Lapse.Eval (eval)
-import Lapse.Modules.Json qualified as Json
 import Lapse.Lambda (define, defmacro, lambda, macro)
+import Lapse.Modules.FS qualified as FS
+import Lapse.Modules.Json qualified as Json
+import Lapse.Modules.Web qualified as Web
 import Lapse.Operators
 import Lapse.Parser (parse)
 import Lapse.Scopes (addScope, addScopes)
 import Lapse.Types (Func, LapseM, Scope, Scopes, Value (..))
-import Lapse.Modules.Web qualified as Web
 import System.IO (
   IOMode (ReadMode),
   readFile',
@@ -70,6 +71,7 @@ builtins =
     , ("io", io)
     , ("web", Web.mod)
     , ("json", Json.mod)
+    , ("fs", FS.mod)
     ]
 
 fileExists :: FilePath -> IO Bool
