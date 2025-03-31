@@ -159,13 +159,15 @@ lshow _ = error "Show need exactly one argument"
 
 lprint :: Func
 lprint (Pair (String v) Nil) = liftIO $ putStrLn v >> pure Nil
+lprint (Pair (String v) rest) = liftIO (putStrLn v) >> lprint rest
 lprint (Pair v Nil) = liftIO $ print v >> pure Nil
-lprint _ = error "Print need exactly one argument"
+lprint (Pair v rest) = liftIO (print v) >> lprint rest
+lprint _ = error "Impossible"
 
 lwrite :: Func
 lwrite (Pair (String v) Nil) = liftIO $ putStr v >> pure Nil
 lwrite (Pair v Nil) = liftIO $ (putStr . show) v >> pure Nil
-lwrite _ = error "Write need exactly one argument :: String"
+lwrite _ = error "Write needs exactly one argument :: String"
 
 lflush :: Func
 lflush = const $ liftIO $ hFlush stdout >> pure Nil
@@ -175,7 +177,7 @@ lgetl = const $ liftIO $ String <$> getLine
 
 lread :: Func
 lread (Pair (String s) Nil) = pure $ head $ parse s
-lread _ = error "Read need exactly one argument :: String"
+lread _ = error "Read needs exactly one argument :: String"
 
 unList :: Value -> [Value]
 unList Nil = []
