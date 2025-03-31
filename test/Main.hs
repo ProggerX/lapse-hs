@@ -2,18 +2,15 @@ import Test.Tasty (defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 
 import Control.Monad.State (evalStateT)
-import Data.Functor.Identity (Identity, runIdentity)
 import Data.Map.Strict (empty)
-import Lapse (list, numList)
+import Lapse (evalLapseM', list, numList, runExpression')
 import Lapse.Eval (eval)
 import Lapse.Modules (std)
 import Lapse.Operators
 import Lapse.Parser (parse)
 import Lapse.Types (Func, LapseM, Scopes, Value (..))
 
-type PValue = Value Identity
-
-showTests :: [(PValue, String)]
+showTests :: [(Value, String)]
 showTests =
   [ (numList [1, 2, 3], "(1 2 3)")
   , (Pair (Number 1) (Pair (Number 2) (Number 3)), "(1 2 . 3)")
@@ -23,7 +20,7 @@ showTests =
   , (Pair (Number 5) Nil, "(5)")
   ]
 
-opTests :: [(LapseM Identity PValue, PValue)]
+opTests :: [(LapseM Value, Value)]
 opTests =
   [ (ladd Nil, Number 0)
   , (lmul Nil, Number 1)
@@ -42,7 +39,7 @@ opTests =
   , (leql $ numList [5, 5], Number 1)
   ]
 
-condTests :: [(PValue, PValue)]
+condTests :: [(Value, Value)]
 condTests =
   [ (Nil, Nil)
   , (list [list [Number 1, Number 2], list [Number 2, Number 3], list [Number 3, Number 4]], Number 2)
@@ -59,14 +56,8 @@ exprTests =
   , ("(let ((a \"stra\") (b \"bstr\")) (concat a b))", "[\"strabstr\"]")
   ]
 
-st :: Scopes Identity
+st :: Scopes
 st = [empty, std]
-
-evalLapseM :: LapseM Identity a -> Identity a
-evalLapseM = (`evalStateT` 0) . (`evalStateT` st)
-
-runExpression' :: String -> Identity String
-runExpression' = (show <$>) . evalLapseM . mapM eval . parse
 
 main :: IO ()
 main =
@@ -76,17 +67,17 @@ main =
       [ testGroup "show" [testCase x $ show t @?= x | (t, x) <- showTests]
       , testGroup
           "operators"
-          [ testCase (show x) $ runIdentity (evalLapseM t) @?= x
+          [ testCase (show x) $ evalLapseM' t >>= (@?= x)
           | (t, x) <- opTests
           ]
       , testGroup
           "cond"
-          [ testCase (show x) $ (runIdentity . evalLapseM . cond) t @?= x
+          [ testCase (show x) $ evalLapseM' (cond t) >>= (@?= x)
           | (t, x) <- condTests
           ]
       , testGroup
           "expression tests"
-          [ testCase x $ runIdentity (runExpression' t) @?= x
+          [ testCase x $ runExpression' t >>= (@?= x)
           | (t, x) <- exprTests
           ]
       ]

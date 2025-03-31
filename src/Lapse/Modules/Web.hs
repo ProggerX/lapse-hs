@@ -1,13 +1,13 @@
 module Lapse.Modules.Web where
 
 import Data.Map.Strict (fromList)
-import Lapse.Types (Scope, Value (..))
 import Lapse.Modules.Web.Client
 import Lapse.Modules.Web.Server (lserve, lserver)
 import Lapse.Modules.Web.Server.Get (lroutG)
 import Lapse.Modules.Web.Server.Post (lroutP)
+import Lapse.Types (Scope, Value (..))
 
-mod :: Scope IO
+mod :: Scope
 mod =
   fromList
     [ ("get", Function lget)

@@ -8,15 +8,15 @@ import Lapse.Lambda (UnList (..), unList)
 import Lapse.Modules.Web.Types (WServer (..))
 import Lapse.Types (Func, TBox (..), Value (..), ext)
 
-unString :: Value m -> String
+unString :: Value -> String
 unString (String s) = s
 unString _ = error "Error: expected string but got not string"
 
-unString' :: Value m -> String
+unString' :: Value -> String
 unString' (String s) = s
 unString' v = show v
 
-lroutP :: Func IO
+lroutP :: Func
 lroutP (Pair (String url) (Pair args' (Pair (Function f) (Pair (External (TBox srv)) Nil)))) = do
   st <- get
   cnt <- lift get

@@ -62,7 +62,7 @@ respond WServer{routesGET, routesPOST} (url, params) =
           else const $ pure $ W.responseLBS status400 [] $ BCL.pack "Bad Request"
       Nothing -> const $ pure $ W.responseLBS status404 [] $ BCL.pack $ "No such endpoint: " ++ url
 
-lserve :: Func IO
+lserve :: Func
 lserve (Pair (External (TBox srv)) Nil) =
   case cast @_ @WServer srv of
     Just s@WServer{port} ->
@@ -75,6 +75,6 @@ lserve (Pair (External (TBox srv)) Nil) =
     Nothing -> lserve Nil
 lserve _ = error "serve expected exactly one argument :: WServer"
 
-lserver :: Func IO
+lserver :: Func
 lserver (Pair (Number port) Nil) = pure $ ext WServer{port, routesGET = empty, routesPOST = empty}
 lserver _ = error "Expected integer port as argument to server"

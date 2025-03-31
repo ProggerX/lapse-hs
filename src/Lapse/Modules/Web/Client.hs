@@ -16,7 +16,7 @@ import Lapse.Types (Func, TBox (..), Value (..), ext)
 import Network.Wreq (responseBody, responseStatus, statusCode)
 import Network.Wreq qualified as W
 
-mkR :: String -> Func IO
+mkR :: String -> Func
 mkR m (Pair (String s) Nil) =
   pure $
     ext $
@@ -29,17 +29,17 @@ mkR m (Pair (String s) Nil) =
         }
 mkR _ _ = error "HTTP get needs exactly one argument :: String"
 
-lget :: Func IO
+lget :: Func
 lget = mkR "GET"
 
-lpost :: Func IO
+lpost :: Func
 lpost = mkR "POST"
 
-unString :: Value m -> String
+unString :: Value -> String
 unString (String s) = s
 unString _ = error "Expected String, got non-string"
 
-lparam :: Func IO
+lparam :: Func
 lparam (Pair (String k) (Pair vs (Pair (External (TBox req)) Nil))) =
   case cast @_ @WRequest req of
     Just r@WRequest{params} -> pure $ ext r{params = (k, v) : params}
@@ -51,7 +51,7 @@ lparam (Pair (String k) (Pair vs (Pair (External (TBox req)) Nil))) =
     _ -> lparam Nil
 lparam _ = error "withParam error, valid syntax: 'withParam <key> <values> <request>'"
 
-lheader :: Func IO
+lheader :: Func
 lheader (Pair (String k) (Pair vs (Pair (External (TBox req)) Nil))) =
   case cast @_ @WRequest req of
     Just r@WRequest{headers} -> pure $ ext r{headers = (k, v) : headers}
@@ -63,7 +63,7 @@ lheader (Pair (String k) (Pair vs (Pair (External (TBox req)) Nil))) =
     _ -> lheader Nil
 lheader _ = error "withHeader error, valid syntax: 'withHeader <key> <values> <request>'"
 
-lrbody :: Func IO
+lrbody :: Func
 lrbody (Pair b (Pair (External (TBox req)) Nil)) =
   case cast @_ @WRequest req of
     Just r@WRequest{} -> pure $ ext r{rbody = f b}
@@ -73,7 +73,7 @@ lrbody (Pair b (Pair (External (TBox req)) Nil)) =
     _ -> lrbody Nil
 lrbody _ = error "withBody error, valid syntax: 'withBody <body> <request>'"
 
-lsend :: Func IO
+lsend :: Func
 lsend (Pair (External (TBox req)) Nil) = case cast @_ @WRequest req of
   Just WRequest{url, params, headers, method, rbody} ->
     do
@@ -95,14 +95,14 @@ lsend (Pair (External (TBox req)) Nil) = case cast @_ @WRequest req of
   _ -> lsend Nil
 lsend _ = error "Send error, valid syntax: 'send <request>'"
 
-lbody :: Func IO
+lbody :: Func
 lbody (Pair (External (TBox x)) Nil) =
   case cast @_ @WResponse x of
     Just r -> pure $ String $ BCL.unpack $ body r
     Nothing -> lbody Nil
 lbody _ = error "body needs exactly one argument :: WResponse"
 
-lstat :: Func IO
+lstat :: Func
 lstat (Pair (External (TBox x)) Nil) =
   case cast @_ @WResponse x of
     Just r -> pure $ String $ BCL.unpack $ body r

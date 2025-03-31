@@ -2,7 +2,7 @@ module Main where
 
 import Control.Monad (forever, unless)
 import Data.Function ((&))
-import Lapse (runExpression, runExpressionR')
+import Lapse (runExpression, runExpression')
 import Lapse.Modules (fileExists)
 import System.Environment (getArgs)
 import System.IO (
@@ -18,7 +18,7 @@ repl = r >>= e >>= p & l
     putStr "(repl@lapse)>> "
     hFlush stdout
     getLine
-  e = runExpressionR'
+  e = runExpression'
   p = putStrLn
   l = forever
 

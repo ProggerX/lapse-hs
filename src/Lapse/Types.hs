@@ -12,29 +12,29 @@ import Data.Typeable (Typeable, cast)
 import Data.Vector (toList)
 import GHC.Generics (Generic)
 
-type Scope m = Map String (Value m)
-type Scopes m = [Scope m]
+type Scope = Map String Value
+type Scopes = [Scope]
 
-type Func m = (Value m -> LapseM m (Value m))
+type Func = Value -> LapseM Value
 
 data TBox = forall a. (Typeable a, Show a, Eq a) => TBox a
 
-data Value m
+data Value
   = Nil
   | Number Int
   | Name String
-  | Pair (Value m) (Value m)
+  | Pair Value Value
   | String String
-  | Dict (Map String (Value m))
-  | Function (Func m)
-  | Macros (Func m)
+  | Dict (Map String Value)
+  | Function Func
+  | Macros Func
   | External TBox
   deriving (Eq, Generic)
 
-instance Eq (Func m) where
+instance Eq Func where
   _ == _ = error "Can't compare functions"
 
-instance A.ToJSON (Func m) where
+instance A.ToJSON Func where
   toJSON _ = error "Can't pack a function to JSON"
 
 instance Eq TBox where
@@ -46,10 +46,10 @@ instance Eq TBox where
 instance A.ToJSON TBox where
   toJSON (TBox a) = A.toJSON $ show a -- NOTE: Can cause problems in future
 
-ext :: (Typeable a, Show a, Eq a) => a -> Value m
+ext :: (Typeable a, Show a, Eq a) => a -> Value
 ext = External . TBox
 
-show' :: Value m -> String
+show' :: Value -> String
 show' (Pair a@(Pair _ _) Nil) = surround $ show' a
 show' (Pair a Nil) = show' a
 show' (Pair a b) =
@@ -72,7 +72,7 @@ isIdent x
       '}' -> False
       _ -> True
 
-instance Show (Value m) where
+instance Show Value where
   show Nil = "()"
   show (Number n) = show n
   show (Name s) = if all isIdent s then s else "#{" ++ s ++ "}#"
@@ -88,11 +88,11 @@ instance Show (Value m) where
 surround :: String -> String
 surround s = "(" ++ s ++ ")"
 
-type LapseM m = StateT (Scopes m) (StateT Int m)
+type LapseM = StateT Scopes (StateT Int IO)
 
-data UnList m = Proper [Value m] | Improper ([Value m], Value m) | Single (Value m) deriving (Show)
+data UnList = Proper [Value] | Improper ([Value], Value) | Single Value deriving (Show)
 
-unList :: Value m -> UnList m
+unList :: Value -> UnList
 unList Nil = Proper []
 unList (Pair h t) = case unList t of
   Proper x -> Proper $ h : x
@@ -100,7 +100,7 @@ unList (Pair h t) = case unList t of
   Single x -> Improper ([h], x)
 unList v = Single v
 
-instance A.ToJSON (Value m) where
+instance A.ToJSON Value where
   toJSON v = case unList v of
     Proper l -> A.toJSON l
     Improper l -> A.toJSON l
@@ -120,7 +120,7 @@ unsafeFromJSON v = case A.fromJSON v of
   A.Success a -> a
   A.Error err -> error $ "JSON error: " ++ err
 
-instance A.FromJSON (Value m) where
+instance A.FromJSON Value where
   parseJSON = \case
     A.Null -> pure Nil
     A.Number n -> pure $ Number (floor n)

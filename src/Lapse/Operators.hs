@@ -13,13 +13,13 @@ import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, Value (..))
 import System.IO (hFlush, stdout)
 
-pureFunc :: (Monad m) => (Value m -> Value m) -> Func m
+pureFunc :: (Value -> Value) -> Func
 pureFunc = (pure .)
 
-pureFunc' :: (Monad m) => ((Value m -> Value m) -> Value m -> Value m) -> Func m
+pureFunc' :: ((Value -> Value) -> Value -> Value) -> Func
 pureFunc' = pureFunc . fix
 
-ladd :: (Monad m) => Func m
+ladd :: Func
 ladd = pureFunc' \f -> \case
   Nil -> Number 0
   (Pair (Number a) b) ->
@@ -30,7 +30,7 @@ ladd = pureFunc' \f -> \case
       )
   _ -> undefined
 
-lmul :: (Monad m) => Func m
+lmul :: Func
 lmul = pureFunc' \f -> \case
   Nil -> Number 1
   (Pair (Number a) b) ->
@@ -41,36 +41,36 @@ lmul = pureFunc' \f -> \case
       )
   _ -> undefined
 
-lsub :: (Monad m) => Func m
+lsub :: Func
 lsub = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
   _ -> undefined
 
-ldiv :: (Monad m) => Func m
+ldiv :: Func
 ldiv = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
   _ -> undefined
 
-lgrt :: (Monad m) => Func m
+lgrt :: Func
 lgrt = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
   _ -> undefined
 
-llss :: (Monad m) => Func m
+llss :: Func
 llss = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
   _ -> undefined
 
-leql :: (Monad m) => Func m
+leql :: Func
 leql = pureFunc \case
   (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
   _ -> undefined
 
-lset :: (Monad m) => Func m
+lset :: Func
 lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
 lset _ = error "Wrong argument for set"
 
-llet' :: (Monad m) => Func m
+llet' :: Func
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
   eval v >>= changeValue k
   eval val
@@ -79,10 +79,10 @@ llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) other) c@(Pair _ Nil)) = do
   llet' (Pair other c)
 llet' _ = error "Wrong argument for let"
 
-llet :: (Monad m) => Func m
+llet :: Func
 llet v = newScope *> llet' v <* dropScope
 
-cond :: (Monad m) => Func m
+cond :: Func
 cond = \case
   Nil -> pure Nil
   (Pair (Pair c (Pair r Nil)) els) ->
@@ -91,26 +91,26 @@ cond = \case
       _ -> eval r
   _ -> undefined
 
-lmap :: (Monad m) => Func m
+lmap :: Func
 lmap (Pair (Function f) (Pair oth Nil)) = lmap' f oth
 lmap (Pair (Macros f) (Pair oth Nil)) = lmap' f oth
 lmap _ = undefined
 
-ldouble :: (Monad m) => Func m
+ldouble :: Func
 ldouble (Number x) = pure $ Number $ x * 2
 ldouble _ = undefined
 
-llist :: (Monad m) => Func m
+llist :: Func
 llist = pure
 
-gensym :: (Monad m) => Func m
+gensym :: Func
 gensym Nil = lift get >>= \x -> lift $ put (x + 1) >> pure (Name (" sym" ++ show x))
 gensym _ = undefined
 
-lraw :: (Monad m) => Func m
+lraw :: Func
 lraw (Pair v Nil) = f v
  where
-  f :: (Monad m) => Func m
+  f :: Func
   f (Pair (Name "unraw") (Pair b Nil)) = eval b
   f (Pair a b) = do
     fa <- f a
@@ -119,19 +119,19 @@ lraw (Pair v Nil) = f v
   f x = pure x
 lraw _ = undefined
 
-lfst :: (Monad m) => Func m
+lfst :: Func
 lfst (Pair (Pair v _) Nil) = pure v
 lfst _ = error "Not a pair"
-lsnd :: (Monad m) => Func m
+lsnd :: Func
 lsnd (Pair (Pair _ v) Nil) = pure v
 lsnd _ = error "Not a pair"
 
-lpow :: (Monad m) => Func m
+lpow :: Func
 lpow = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a ^ b
   _ -> undefined
 
-lsqr :: (Monad m) => Func m
+lsqr :: Func
 lsqr = pureFunc \case
   (Pair (Number a) Nil) -> Number $ floor (sqrt $ fromIntegral a :: Double)
   _ -> undefined
@@ -140,12 +140,12 @@ fact :: Int -> Int
 fact 0 = 1
 fact x = x * fact (x - 1)
 
-lfac :: (Monad m) => Func m
+lfac :: Func
 lfac = pureFunc \case
   (Pair (Number a) Nil) -> Number $ fact a
   _ -> undefined
 
-lcon :: (Monad m) => Func m
+lcon :: Func
 lcon = pureFunc' \f -> \case
   (Pair s@(String _) Nil) -> s
   (Pair (String s) b) -> case f b of
@@ -153,43 +153,43 @@ lcon = pureFunc' \f -> \case
     _ -> error "Concat error"
   _ -> error "Concat error"
 
-lshow :: (Monad m) => Func m
+lshow :: Func
 lshow (Pair x Nil) = pure $ String $ show x
 lshow _ = error "Show need exactly one argument"
 
-lprint :: Func IO
+lprint :: Func
 lprint (Pair (String v) Nil) = liftIO $ putStrLn v >> pure Nil
 lprint (Pair v Nil) = liftIO $ print v >> pure Nil
 lprint _ = error "Print need exactly one argument"
 
-lwrite :: Func IO
+lwrite :: Func
 lwrite (Pair (String v) Nil) = liftIO $ putStr v >> pure Nil
 lwrite (Pair v Nil) = liftIO $ (putStr . show) v >> pure Nil
 lwrite _ = error "Write need exactly one argument :: String"
 
-lflush :: Func IO
+lflush :: Func
 lflush = const $ liftIO $ hFlush stdout >> pure Nil
 
-lgetl :: Func IO
+lgetl :: Func
 lgetl = const $ liftIO $ String <$> getLine
 
-lread :: (Monad m) => Func m
+lread :: Func
 lread (Pair (String s) Nil) = pure $ head $ parse s
 lread _ = error "Read need exactly one argument :: String"
 
-unList :: Value m -> [Value m]
+unList :: Value -> [Value]
 unList Nil = []
 unList (Pair h t) = h : unList t
 unList _ = error "unList got wrong list"
 
-leval :: (Monad m) => Func m
+leval :: Func
 leval = last . map eval . unList
 
-unDict :: (Monad m) => Value m -> Map String (Value m)
+unDict :: Value -> Map String Value
 unDict (Dict d) = d
 unDict _ = undefined
 
-ldict :: (Monad m) => Func m
+ldict :: Func
 ldict Nil = pure $ Dict empty
 ldict (Pair (Pair k (Pair v Nil)) rest) = do
   v' <- eval v
@@ -201,7 +201,7 @@ ldict (Pair (Pair k (Pair v Nil)) rest) = do
     _ -> error "Key should be either string or name"
 ldict _ = error "Wrong dict expression"
 
-llkp :: (Monad m) => Func m
+llkp :: Func
 llkp (Pair k' (Pair d' Nil)) = do
   a <- eval d'
   let d = case a of

@@ -7,32 +7,28 @@ import Lapse.Modules (initIOState, replState)
 import Lapse.Parser (parse)
 import Lapse.Types (LapseM, Value (..))
 
-list :: [Value m] -> Value m
+list :: [Value] -> Value
 list = foldr Pair Nil
 
-numList :: [Int] -> Value m
+numList :: [Int] -> Value
 numList = list . map Number
 
-list' :: [Value m] -> Value m
+list' :: [Value] -> Value
 list' = Pair (Name "list") . list
 
-numList' :: [Int] -> Value m
+numList' :: [Int] -> Value
 numList' = list' . map Number
 
-evalLapseMIO :: LapseM IO a -> IO a
-evalLapseMIO = (`evalStateT` 0) . (`evalStateT` initIOState)
+evalLapseM :: LapseM a -> IO a
+evalLapseM = (`evalStateT` 0) . (`evalStateT` initIOState)
 
-runExpression :: String -> IO [Value IO]
-runExpression = evalLapseMIO . mapM eval . parse
+runExpression :: String -> IO [Value]
+runExpression = evalLapseM . mapM eval . parse
+
+evalLapseM' :: LapseM a -> IO a
+evalLapseM' = (`evalStateT` 0) . (`evalStateT` replState)
 
 runExpression' :: String -> IO String
-runExpression' = (pure . show) <=< runExpression
-
-evalLapseMIOR :: LapseM IO a -> IO a
-evalLapseMIOR = (`evalStateT` 0) . (`evalStateT` replState)
-
-runExpressionR :: String -> IO [Value IO]
-runExpressionR = evalLapseMIOR . mapM eval . parse
-
-runExpressionR' :: String -> IO String
-runExpressionR' = (pure . show) <=< runExpressionR
+runExpression' = (pure . show) <=< f
+ where
+  f = evalLapseM' . mapM eval . parse

@@ -19,7 +19,7 @@ import System.IO (
   withFile,
  )
 
-std :: (Monad m) => Scope m
+std :: Scope
 std =
   fromList
     [ ("+", Function ladd)
@@ -55,7 +55,7 @@ std =
     , ("lookup", Macros llkp)
     ]
 
-io :: Scope IO
+io :: Scope
 io =
   fromList
     [ ("print", Function lprint)
@@ -64,7 +64,7 @@ io =
     , ("flush", Function lflush)
     ]
 
-builtins :: Map String (Scope IO)
+builtins :: Map String Scope
 builtins =
   fromList
     [ ("std", std)
@@ -78,13 +78,13 @@ fileExists :: FilePath -> IO Bool
 fileExists path =
   withFile path ReadMode (\_ -> pure True) `onException` pure False
 
-getScopesIO' :: LapseM IO a -> IO (Scopes IO)
+getScopesIO' :: LapseM a -> IO Scopes
 getScopesIO' = (snd <$>) . (`evalStateT` 0) . (`runStateT` initIOState)
 
-getScopesIO :: String -> IO (Scopes IO)
+getScopesIO :: String -> IO Scopes
 getScopesIO = getScopesIO' . mapM eval . parse
 
-limport :: Func IO
+limport :: Func
 limport (Pair (String s) Nil) = case builtins !? s of
   Just x -> addScope x >> pure Nil
   Nothing -> do
@@ -99,13 +99,13 @@ limport (Pair (String s) Nil) = case builtins !? s of
 limport (Pair (String s) a) = limport (Pair (String s) Nil) >> limport a
 limport _ = error "import argument must be string"
 
-prelude :: Scope IO
+prelude :: Scope
 prelude =
   fromList
     [("import", Macros limport)]
 
-replState :: Scopes IO
+replState :: Scopes
 replState = [empty, prelude, std]
 
-initIOState :: Scopes IO
+initIOState :: Scopes
 initIOState = [empty, prelude]
