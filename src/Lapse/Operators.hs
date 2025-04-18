@@ -26,9 +26,9 @@ ladd = pureFunc' \f -> \case
     Number
       ( a + case f b of
           Number x -> x
-          _ -> undefined
+          _ -> error "Can't add not numbers"
       )
-  _ -> undefined
+  _ -> error "Can't add not numbers"
 
 lmul :: Func
 lmul = pureFunc' \f -> \case
@@ -37,34 +37,36 @@ lmul = pureFunc' \f -> \case
     Number
       ( a * case f b of
           Number x -> x
-          _ -> undefined
+          _ -> error "Can't multiply not numbers"
       )
-  _ -> undefined
+  _ -> error "Can't multiply not numbers"
 
 lsub :: Func
 lsub = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
-  _ -> undefined
+  _ -> error "Can't substract not two numbers"
 
 ldiv :: Func
 ldiv = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
-  _ -> undefined
+  _ -> error "Can't divide not two numbers"
 
 lgrt :: Func
 lgrt = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
-  _ -> undefined
+  (Pair (String a) (Pair (String b) Nil)) -> if a > b then Number 1 else Nil
+  _ -> error "Can't compare not two numbers or strings"
 
 llss :: Func
 llss = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
-  _ -> undefined
+  (Pair (String a) (Pair (String b) Nil)) -> if a < b then Number 1 else Nil
+  _ -> error "Can't compare not two numbers or strings"
 
 leql :: Func
 leql = pureFunc \case
   (Pair a (Pair b Nil)) -> if a == b then Number 1 else Nil
-  _ -> undefined
+  _ -> error "Can't compare not two values"
 
 lset :: Func
 lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
