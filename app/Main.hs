@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Exception (SomeException, try)
 import Control.Monad (forever, unless)
 import Data.Function ((&))
 import Lapse (runExpression, runExpression')
@@ -19,7 +20,11 @@ repl = r >>= e >>= p & l
     hFlush stdout
     getLine
   e = runExpression'
-  p = putStrLn
+  p x = do
+    printResult <- try (putStrLn x) :: IO (Either SomeException ())
+    case printResult of
+      Left err -> putStrLn $ "Error: " ++ show err
+      Right _ -> pure ()
   l = forever
 
 executeFile :: String -> IO ()
