@@ -7,9 +7,9 @@
 
 (defn base () (eval (print "G0Z10\nG0X0Y0\n") (set curx 0) (set cury 0) (set is_cutting ())))
 
-(defn down () (eval (print $ concat "G1Z" (show mat) "F400\n") (set is_cutting 1)))
+(defn down () (eval (print $ concat "G1Z" (show mat) "F" (show speed) "\n") (set is_cutting 1)))
 
-(defn up () (eval (print $ concat "G0Z10\n") (set is_cutting 0)))
+(defn up () (eval (print $ concat "G0Z10\n") (set is_cutting ())))
 
 (defn go (x y) (eval 
     (cond
