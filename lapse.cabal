@@ -6,6 +6,7 @@ license-file:       LICENSE
 author:             ProggerX
 maintainer:         x@proggers.ru
 build-type:         Simple
+data-files:         modules/**/*.lp
 
 common warnings
   ghc-options: -Wall

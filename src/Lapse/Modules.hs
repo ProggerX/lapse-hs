@@ -33,6 +33,7 @@ std =
     , ("<", Function llss)
     , (">", Function lgrt)
     , ("==", Function leql)
+    , ("not", Function lnot)
     , ("^", Function lpow)
     , ("sqrt", Function lsqr)
     , ("let", Macros llet)
@@ -43,6 +44,7 @@ std =
     , ("list", Function llist)
     , ("gensym", Function gensym)
     , ("eval", Function leval)
+    , ("do", Function leval)
     , ("nil", Nil)
     , ("raw", Macros lraw)
     , ("fst", Function lfst)
@@ -57,6 +59,8 @@ std =
     , ("read", Function lread)
     , ("dict", Macros ldict)
     , ("lookup", Macros llkp)
+    , ("float", Function lflt)
+    , ("floor", Function lfloor)
     ]
 
 io :: Scope

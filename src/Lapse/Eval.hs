@@ -18,6 +18,7 @@ eval = \case
   Nil -> pure Nil
   Name x -> getValue x
   x@(Number _) -> pure x
+  x@(Float _) -> pure x
   x@(String _) -> pure x
   x@(Dict _) -> pure x
   x@(Function _) -> pure x

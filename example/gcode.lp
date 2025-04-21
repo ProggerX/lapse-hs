@@ -1,11 +1,14 @@
-(import "std" "io")
-
-(set curx 0) (set cury 1)
-
-(import "modules/gcode.lp")
+(import "std" "io" "gcode")
 
 (init "plra4")
 (base)
-(print $ concat "cury: " $ show cury)
 (go 5 50)
-(delta 5 40)
+(delta 5 -40)
+(down)
+(left 5)
+(right 20)
+(forward 50)
+(right 20)
+(backward 15)
+(base)
+(end)

@@ -3,13 +3,14 @@
 
 module Lapse.Operators where
 
+import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
 import Data.Map.Strict (Map, empty, insert, (!))
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
-import Lapse.Scopes (changeValue, dropScope, glob, newScope)
+import Lapse.Scopes (changeValue, dropScope, newScope)
 import Lapse.Types (Func, Value (..))
 import System.IO (hFlush, stdout)
 
@@ -23,43 +24,67 @@ ladd :: Func
 ladd = pureFunc' \f -> \case
   Nil -> Number 0
   (Pair (Number a) b) ->
-    Number
-      ( a + case f b of
-          Number x -> x
-          _ -> error "Can't add not numbers"
-      )
+    case f b of
+      Number x -> Number $ a + x
+      Float x -> Float $ realToFrac a + x
+      _ -> error "Can't add not numbers"
+  (Pair (Float a) b) ->
+    case f b of
+      Number x -> Float $ a + realToFrac x
+      Float x -> Float $ realToFrac a + x
+      _ -> error "Can't add not numbers"
   _ -> error "Can't add not numbers"
 
 lmul :: Func
 lmul = pureFunc' \f -> \case
   Nil -> Number 1
   (Pair (Number a) b) ->
-    Number
-      ( a * case f b of
-          Number x -> x
-          _ -> error "Can't multiply not numbers"
-      )
+    case f b of
+      Number x -> Number $ a * x
+      Float x -> Float $ realToFrac a * x
+      _ -> error "Can't multiply not numbers"
+  (Pair (Float a) b) ->
+    case f b of
+      Number x -> Float $ a * realToFrac x
+      Float x -> Float $ realToFrac a * x
+      _ -> error "Can't multiply not numbers"
   _ -> error "Can't multiply not numbers"
 
 lsub :: Func
 lsub = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ a - b
+  (Pair (Float a) (Pair (Float b) Nil)) -> Float $ a - b
+  (Pair (Number a) (Pair (Float b) Nil)) -> Float $ realToFrac a - b
+  (Pair (Float a) (Pair (Number b) Nil)) -> Float $ a - realToFrac b
   _ -> error "Can't substract not two numbers"
 
 ldiv :: Func
 ldiv = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> Number $ div a b
+  (Pair (Float a) (Pair (Float b) Nil)) -> Float $ a / b
+  (Pair (Number a) (Pair (Float b) Nil)) -> Float $ realToFrac a / b
+  (Pair (Float a) (Pair (Number b) Nil)) -> Float $ a / realToFrac b
   _ -> error "Can't divide not two numbers"
 
 lgrt :: Func
 lgrt = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a > b then Number 1 else Nil
+  (Pair (Float a) (Pair (Number b) Nil)) -> if a > realToFrac b then Number 1 else Nil
+  (Pair (Number a) (Pair (Float b) Nil)) -> if b > realToFrac a then Number 1 else Nil
+  (Pair (Float a) (Pair (Float b) Nil)) -> if a > b then Number 1 else Nil
   (Pair (String a) (Pair (String b) Nil)) -> if a > b then Number 1 else Nil
   _ -> error "Can't compare not two numbers or strings"
+
+lnot :: Func
+lnot (Pair Nil Nil) = pure $ Number 1
+lnot _ = pure Nil
 
 llss :: Func
 llss = pureFunc \case
   (Pair (Number a) (Pair (Number b) Nil)) -> if a < b then Number 1 else Nil
+  (Pair (Float a) (Pair (Number b) Nil)) -> if a < realToFrac b then Number 1 else Nil
+  (Pair (Number a) (Pair (Float b) Nil)) -> if b < realToFrac a then Number 1 else Nil
+  (Pair (Float a) (Pair (Float b) Nil)) -> if a < b then Number 1 else Nil
   (Pair (String a) (Pair (String b) Nil)) -> if a < b then Number 1 else Nil
   _ -> error "Can't compare not two numbers or strings"
 
@@ -71,10 +96,6 @@ leql = pureFunc \case
 lset :: Func
 lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
 lset _ = error "Wrong argument for set"
-
-lglb :: Func
-lglb (Pair (Name k) (Pair v Nil)) = eval v >>= glob k >> pure Nil
-lglb _ = error "Wrong argument for glob"
 
 llet' :: Func
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
@@ -150,6 +171,14 @@ lfac :: Func
 lfac = pureFunc \case
   (Pair (Number a) Nil) -> Number $ fact a
   _ -> undefined
+
+lfloor :: Func
+lfloor (Pair (Float a) Nil) = pure $ Number $ floor a
+lfloor _ = error "Floor accepts only float argument"
+
+lflt :: Func
+lflt (Pair (Number a) Nil) = pure $ Float $ realToFrac a
+lflt _ = error "Float accepts only integer argument"
 
 lcon :: Func
 lcon = pureFunc' \f -> \case

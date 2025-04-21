@@ -2,7 +2,7 @@ module Lapse.Lambda where
 
 import Control.Monad ((<=<))
 import Control.Monad.State (get, gets, put)
-import Data.Map.Strict (fromList)
+import Data.Map.Strict (empty, fromList)
 import Lapse.Eval (eval)
 import Lapse.Operators (lset)
 import Lapse.Types (Func, LapseM, Scopes, Value (..))
@@ -25,9 +25,10 @@ unList' x = case unList x of
 inScopes :: Scopes -> Value -> LapseM Value
 inScopes ss v = do
   oldScopes <- get
-  put ss
+  put $ empty : ss
   res <- eval v
-  put oldScopes
+  s <- gets head
+  put $ s : oldScopes
   pure res
 
 unName :: Value -> String

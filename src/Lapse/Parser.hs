@@ -71,7 +71,8 @@ trim = init . tail
 
 parseToken :: String -> Value
 parseToken t
-  | all isDigit t = Number $ read t
+  | all (\c -> isDigit c || c == '-') t && t /= "-" = Number $ read t
+  | all (\c -> isDigit c || c == '-' || c == '.') t && t /= "-" && t /= "." = Float $ read t
   | isString t = String $ trim t
   | otherwise = Name t
 

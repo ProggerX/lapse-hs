@@ -22,6 +22,7 @@ data TBox = forall a. (Typeable a, Show a, Eq a) => TBox a
 data Value
   = Nil
   | Number Int
+  | Float Float
   | Name String
   | Pair Value Value
   | String String
@@ -75,6 +76,7 @@ isIdent x
 instance Show Value where
   show Nil = "()"
   show (Number n) = show n
+  show (Float n) = show n
   show (Name s) = if all isIdent s then s else "#{" ++ s ++ "}#"
   show (String s) = show s
   show pr@(Pair _ _) = surround $ show' pr
@@ -123,8 +125,8 @@ unsafeFromJSON v = case A.fromJSON v of
 instance A.FromJSON Value where
   parseJSON = \case
     A.Null -> pure Nil
-    A.Number n -> pure $ Number (floor n)
-    A.String s -> pure $ String (T.unpack s)
+    A.Number n -> (pure . Float . realToFrac) n
+    A.String s -> (pure . String . T.unpack) s
     A.Bool b -> pure $ if b then Number 1 else Number 0
     A.Array arr -> pure $ foldr (Pair . unsafeFromJSON) Nil $ toList arr
     A.Object obj -> Dict <$> A.parseJSON (A.Object obj)
