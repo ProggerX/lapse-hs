@@ -9,7 +9,7 @@ import Data.Function (fix)
 import Data.Map.Strict (Map, empty, insert, (!))
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
-import Lapse.Scopes (changeValue, dropScope, newScope)
+import Lapse.Scopes (changeValue, dropScope, glob, newScope)
 import Lapse.Types (Func, Value (..))
 import System.IO (hFlush, stdout)
 
@@ -71,6 +71,10 @@ leql = pureFunc \case
 lset :: Func
 lset (Pair (Name k) (Pair v Nil)) = eval v >>= changeValue k >> pure Nil
 lset _ = error "Wrong argument for set"
+
+lglb :: Func
+lglb (Pair (Name k) (Pair v Nil)) = eval v >>= glob k >> pure Nil
+lglb _ = error "Wrong argument for glob"
 
 llet' :: Func
 llet' (Pair (Pair (Pair (Name k) (Pair v Nil)) Nil) (Pair val Nil)) = do
@@ -216,3 +220,7 @@ llkp (Pair k' (Pair d' Nil)) = do
     Name k -> pure $ d ! k
     _ -> llkp Nil
 llkp _ = error "Wrong lookup expression. Syntax: lookup <key> <dict>"
+
+lthr :: Func
+lthr (Pair (String s) Nil) = error s
+lthr _ = error "throw syntax: (throw <string>)"

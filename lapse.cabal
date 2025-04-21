@@ -35,6 +35,7 @@ library
     base >=4.18.2.1 && <4.20
     , containers
     , directory
+    , file-embed
     , mtl
     , wreq
     , bytestring

@@ -1,8 +1,12 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Lapse.Modules where
 
 import Control.Exception (onException)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (evalStateT, runStateT)
+import Data.ByteString.Char8 qualified as BC
+import Data.FileEmbed (embedFileRelative)
 import Data.Map.Strict (Map, empty, fromList, (!?))
 import Lapse.Eval (eval)
 import Lapse.Lambda (define, defmacro, lambda, macro)
@@ -74,6 +78,12 @@ builtins =
     , ("fs", FS.mod)
     ]
 
+lapseBuiltins :: Map String String
+lapseBuiltins =
+  fromList
+    [ ("gcode", BC.unpack $(embedFileRelative "modules/gcode.lp"))
+    ]
+
 fileExists :: FilePath -> IO Bool
 fileExists path =
   withFile path ReadMode (\_ -> pure True) `onException` pure False
@@ -87,15 +97,17 @@ getScopesIO = getScopesIO' . mapM eval . parse
 limport :: Func
 limport (Pair (String s) Nil) = case builtins !? s of
   Just x -> addScope x >> pure Nil
-  Nothing -> do
-    exists <- liftIO $ fileExists s
-    if exists
-      then do
-        fileText <- liftIO $ readFile' s
-        scopes <- liftIO $ getScopesIO fileText
-        addScopes scopes
-        pure Nil
-      else error $ "Can't find module: " ++ s
+  Nothing -> case lapseBuiltins !? s of
+    Just x -> Nil <$ (liftIO (getScopesIO x) >>= addScopes)
+    Nothing -> do
+      exists <- liftIO $ fileExists s
+      if exists
+        then do
+          fileText <- liftIO $ readFile' s
+          scopes <- liftIO $ getScopesIO fileText
+          addScopes scopes
+          pure Nil
+        else error $ "Can't find module: " ++ s
 limport (Pair (String s) a) = limport (Pair (String s) Nil) >> limport a
 limport _ = error "import argument must be string"
 
