@@ -1,0 +1,4 @@
+site_name: Lapse Docs
+nav:
+  - Lapse: index.md
+theme: readthedocs

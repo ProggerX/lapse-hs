@@ -7,10 +7,18 @@
     { flake-parts, nixpkgs, ... }@inputs:
     let
       hs-project =
-        { pkgs, isShell ? false }:
+        {
+          pkgs,
+          isShell ? false,
+        }:
         pkgs.haskellPackages.developPackage {
           root = ./.;
           returnShellEnv = isShell;
+          modifier =
+            drv:
+            pkgs.haskell.lib.addBuildTools drv [
+              pkgs.mkdocs
+            ];
         };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
