@@ -3,7 +3,6 @@
 
 module Lapse.Operators where
 
-import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
