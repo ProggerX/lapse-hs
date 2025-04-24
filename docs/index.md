@@ -1,5 +1,4 @@
-# lapse-hs (WIP)
-This is Lapse (my Lisp dialect) interpreter.
+# Actual docs are coming soon. For now just enjoy README:
 
 Examples: [here](https://github.com/ProggerX/lapse-hs/blob/master/example/)
 
