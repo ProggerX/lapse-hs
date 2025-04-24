@@ -1,5 +1,7 @@
 # Actual docs are coming soon. For now just enjoy README:
 
+This is Lapse (my Lisp dialect) interpreter.
+
 Examples: [here](https://github.com/ProggerX/lapse-hs/blob/master/example/)
 
 ## How to use this/try this
