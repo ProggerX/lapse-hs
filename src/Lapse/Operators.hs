@@ -6,7 +6,8 @@ module Lapse.Operators where
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State (get, lift, put)
 import Data.Function (fix)
-import Data.Map.Strict (Map, empty, insert, (!))
+import Data.Map.Strict (Map, empty, insert, (!?))
+import Data.Maybe (fromMaybe)
 import Lapse.Eval (eval, lmap')
 import Lapse.Parser (parse)
 import Lapse.Scopes (changeValue, dropScope, newScope)
@@ -237,18 +238,50 @@ ldict (Pair (Pair k (Pair v Nil)) rest) = do
     _ -> error "Key should be either string or name"
 ldict _ = error "Wrong dict expression"
 
+or' :: String -> String -> String
+or' "" a = a
+or' a "" = a
+or' a _ = a
+
 llkp :: Func
 llkp (Pair k' (Pair d' Nil)) = do
   a <- eval d'
   let d = case a of
         Dict x -> x
         _ -> error "Wrong lookup expression. Syntax: lookup <key> <dict>"
+  ek <- eval k'
+  let sk = case ek of
+        String x -> x
+        Name x -> x
+        _ -> ""
   case k' of
-    String k -> pure $ d ! k
-    Name k -> pure $ d ! k
+    String k -> d ?! (sk `or'` k)
+    Name k -> d ?! (sk `or'` k)
     _ -> llkp Nil
+ where
+  (?!) d k = pure $ fromMaybe Nil (d !? k)
 llkp _ = error "Wrong lookup expression. Syntax: lookup <key> <dict>"
 
+lins :: Func
+lins (Pair k' (Pair v' (Pair d' Nil))) = do
+  a <- eval d'
+  let d = case a of
+        Dict x -> x
+        _ -> error "Wrong insert expression. Syntax: insert <key> <value> <dict>"
+  v <- eval v'
+  ek <- eval k'
+  let sk = case ek of
+        String x -> x
+        Name x -> x
+        _ -> ""
+  case k' of
+    String k -> pdict $ insert (sk `or'` k) v d
+    Name k -> pdict $ insert (sk `or'` k) v d
+    _ -> lins Nil
+ where
+  pdict = pure . Dict
+lins _ = error "Wrong insert expression. Syntax: insert <key> <value> <dict>"
+
 lthr :: Func
-lthr (Pair (String s) Nil) = error s
+lthr (Pair (String s) Nil) = error $ "\ESC[0;31m" ++ s ++ "\ESC[0m"
 lthr _ = error "throw syntax: (throw <string>)"

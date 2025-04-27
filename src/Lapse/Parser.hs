@@ -16,6 +16,7 @@ stringToken (c : cs) cur = case c of
       ( cur ++ case head cs of
           '"' -> ['"']
           'n' -> ['\n']
+          'e' -> ['\ESC']
           c' -> '\\' : [c']
       )
   _ -> stringToken cs (cur ++ [c])

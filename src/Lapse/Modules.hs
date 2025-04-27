@@ -59,8 +59,10 @@ std =
     , ("read", Function lread)
     , ("dict", Macros ldict)
     , ("lookup", Macros llkp)
+    , ("insert", Macros lins)
     , ("float", Function lflt)
     , ("floor", Function lfloor)
+    , ("throw", Function lthr)
     ]
 
 io :: Scope
@@ -86,6 +88,7 @@ lapseBuiltins :: Map String String
 lapseBuiltins =
   fromList
     [ ("gcode", BC.unpack $(embedFileRelative "modules/gcode.lp"))
+    , ("colors", BC.unpack $(embedFileRelative "modules/colors.lp"))
     ]
 
 fileExists :: FilePath -> IO Bool

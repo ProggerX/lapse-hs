@@ -1,0 +1,10 @@
+(import "std")
+
+(defn black (s) (concat "\e[0;30m" s "\e[0m"))
+(defn red (s) (concat "\e[0;31m" s "\e[0m"))
+(defn green (s) (concat "\e[0;32m" s "\e[0m"))
+(defn yellow (s) (concat "\e[0;33m" s "\e[0m"))
+(defn blue (s) (concat "\e[0;34m" s "\e[0m"))
+(defn purple (s) (concat "\e[0;35m" s "\e[0m"))
+(defn cyan (s) (concat "\e[0;36m" s "\e[0m"))
+(defn white (s) (concat "\e[0;37m" s "\e[0m"))
