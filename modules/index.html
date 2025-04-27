@@ -4,14 +4,21 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="shortcut icon" href="/img/favicon.ico" />
-    <title>Lapse Docs</title>
-    <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/theme_extra.css" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Index - Lapse Docs</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Index";
+        var mkdocs_page_input_path = "modules/index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
     <!--[if lt IE 9]>
-      <script src="/js/html5shiv.min.js"></script>
+      <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
       <script>hljs.highlightAll();</script> 
@@ -23,9 +30,9 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href="/." class="icon icon-home"> Lapse Docs
+          <a href=".." class="icon icon-home"> Lapse Docs
         </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="//search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -33,22 +40,24 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="/.">Lapse</a>
+                <li class="toctree-l1"><a class="reference internal" href="..">Lapse</a>
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Modules</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/">Index</a>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Index</a>
+    <ul class="current">
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/colors/">Colors</a>
+                  <li class="toctree-l1"><a class="reference internal" href="colors/">Colors</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/gcode/">G-code</a>
+                  <li class="toctree-l1"><a class="reference internal" href="gcode/">G-code</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/fs/">FS</a>
+                  <li class="toctree-l1"><a class="reference internal" href="fs/">FS</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/json/">JSON</a>
+                  <li class="toctree-l1"><a class="reference internal" href="json/">JSON</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="/modules/web/">Web</a>
+                  <li class="toctree-l1"><a class="reference internal" href="web/">Web</a>
                   </li>
               </ul>
       </div>
@@ -58,13 +67,15 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="/.">Lapse Docs</a>
+          <a href="..">Lapse Docs</a>
         
       </nav>
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="/." class="icon icon-home" aria-label="Docs"></a></li>
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Modules</li>
+      <li class="breadcrumb-item active">Index</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -73,14 +84,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-
-  <h1 id="404-page-not-found">404</h1>
-
-  <p><strong>Page not found</strong></p>
-
-
+                <h1 id="modules">Modules</h1>
+<p>Lapse includes different modules:</p>
+<ul>
+<li><a href="colors/">ANSI terminal colors</a></li>
+<li><a href="gcode/">G-code generator</a></li>
+<li><a href="fs/">Filesystem</a></li>
+<li><a href="json/">JSON</a></li>
+<li><a href="web/">Web server and client</a></li>
+</ul>
+              
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Lapse"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="colors/" class="btn btn-neutral float-right" title="Colors">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -102,14 +121,18 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="colors/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
-    <script src="/js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "/";</script>
-    <script src="/js/theme_extra.js"></script>
-    <script src="/js/theme.js"></script>
-      <script src="/search/main.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);

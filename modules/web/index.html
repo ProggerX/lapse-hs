@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Web - Lapse Docs</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Web";
+        var mkdocs_page_input_path = "modules/web.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Lapse Docs
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Lapse</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Modules</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Index</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../colors/">Colors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gcode/">G-code</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fs/">FS</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../json/">JSON</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Web</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#import">Import</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#server">Server</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#client">Client</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#reference">Reference</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#server_1">Server</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#client_1">Client</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Lapse Docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Modules</li>
+      <li class="breadcrumb-item active">Web</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="web-server-and-client">Web (server and client)</h1>
+<h3 id="description">Description</h3>
+<p>Module that allows you to make small web servers and clients.</p>
+<h3 id="import">Import</h3>
+<pre><code>(import &quot;web&quot;)
+</code></pre>
+<h3 id="usage">Usage</h3>
+<h4 id="server">Server</h4>
+<pre><code class="language-lisp">-- Built for web client from examples
+
+(import &quot;std&quot; &quot;web&quot; &quot;json&quot;)
+
+(defn greet (fn ln) (concat &quot;Hello, &quot; fn &quot; &quot; ln &quot;!&quot;))
+
+- Create a handler
+(defn f (fn ln) (encode $ dict
+  (first_name fn)
+  (last_name ln)
+  (greeting $ greet fn ln)))
+
+(defn fpost (txt fn ln) (concat txt &quot; &quot; fn &quot; &quot; ln))
+
+(defn echo (body) body)
+
+- Build + serve
+(serve
+  $ routeGET &quot;/greet&quot; (list &quot;fname&quot; &quot;lname&quot;) f
+  $ routePOST &quot;/post&quot; (list &quot;fname&quot; &quot;lname&quot;) fpost
+  $ routePOST &quot;/echo&quot; () echo
+  $ server 2025)
+</code></pre>
+<h4 id="client">Client</h4>
+<pre><code class="language-lisp">-- Uses web server from examples
+
+(import &quot;web&quot; &quot;std&quot; &quot;io&quot; &quot;json&quot;)
+
+- Build request
+(set rget $ send
+  $ withParam &quot;fname&quot; &quot;John&quot;
+  $ withParam &quot;lname&quot; &quot;Black&quot;
+  $ get &quot;http://localhost:2025/greet&quot;)
+
+- Print response
+(print $ concat &quot;Got response: &quot; $ show rget)
+(print &quot;Body:&quot;)
+(print $ resBody rget)
+
+- Decode JSON and get a greeting
+(set gr $ lookup greeting $ fst $ decode $ resBody rget)
+
+(print &quot;Greeting:&quot;)
+(print gr)
+</code></pre>
+<h3 id="reference">Reference</h3>
+<h4 id="server_1">Server</h4>
+<ul>
+<li><code>(server &lt;number:port&gt;)</code> -- creates a web server on port <code>port</code>.</li>
+<li><code>(routeGET &lt;string:path&gt; &lt;list of strings:params&gt; &lt;function(params -&gt; string):handler&gt; &lt;server&gt;)</code> -- adds GET route to <code>server</code>.</li>
+<li><code>(routePOST &lt;string:path&gt; &lt;list of strings:params&gt; &lt;function(body, params -&gt; string):handler&gt; &lt;server&gt;)</code> -- adds POST route to <code>server</code>.</li>
+<li><code>(serve &lt;server&gt;)</code> -- serves a server.</li>
+</ul>
+<h4 id="client_1">Client</h4>
+<ul>
+<li><code>(get &lt;string:url&gt;)</code> -- creates a GET request to <code>url</code>.</li>
+<li><code>(post &lt;string:url&gt;)</code> -- creates a POST request to <code>url</code>.</li>
+<li><code>(withParam &lt;string:name&gt; &lt;string or list of strings:value(s)&gt;)</code> -- adds param to request.</li>
+<li><code>(withBody &lt;string:body&gt;)</code> -- adds body to request.</li>
+<li><code>(send &lt;request&gt;)</code> -- sends <code>request</code> and returns response.</li>
+<li><code>(resStatus &lt;response&gt;)</code> -- returns statusCode of <code>response</code>.</li>
+<li><code>(resBody &lt;response&gt;)</code> -- returns body of <code>response</code>.</li>
+</ul>
+<h3 id="source">Source</h3>
+<p><a href="https://github.com/ProggerX/lapse-hs/tree/master/src/Lapse/Modules/Web">Source</a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../json/" class="btn btn-neutral float-left" title="JSON"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../json/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
