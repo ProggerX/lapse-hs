@@ -1,4 +1,4 @@
-(import "std" "io" "gcode")
+(import "gcode")
 
 (init "plra4")
 (base)

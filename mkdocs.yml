@@ -1,4 +1,11 @@
 site_name: Lapse Docs
 nav:
   - Lapse: index.md
+  - Modules:
+    - Index: modules/index.md
+    - Colors: modules/colors.md
+    - G-code: modules/gcode.md
+    - FS: modules/fs.md
+    - JSON: modules/json.md
+    - Web: modules/web.md
 theme: readthedocs
