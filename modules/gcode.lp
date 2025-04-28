@@ -2,7 +2,7 @@
 
 (set machines $ dict)
 
-(defmacro machine (name init end) (set machines $ insert name '(,init . ,end) machines))
+(defmacro machine (name init end) (insert name '(,init . ,end) machines))
 
 (machine "plra4"
   (do (print "T1M6\nG17\n") (set speed 400) (set mat -6.5))

@@ -275,11 +275,11 @@ lins (Pair k' (Pair v' (Pair d' Nil))) = do
         Name x -> x
         _ -> ""
   case k' of
-    String k -> pdict $ insert (sk `or'` k) v d
-    Name k -> pdict $ insert (sk `or'` k) v d
+    String k -> lset $ list [d', Dict $ insert (sk `or'` k) v d]
+    Name k -> lset $ list [d', Dict $ insert (sk `or'` k) v d]
     _ -> lins Nil
  where
-  pdict = pure . Dict
+  list = foldr Pair Nil
 lins _ = error "Wrong insert expression. Syntax: insert <key> <value> <dict>"
 
 lthr :: Func
