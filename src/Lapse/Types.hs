@@ -130,3 +130,16 @@ instance A.FromJSON Value where
     A.Bool b -> pure $ if b then Number 1 else Number 0
     A.Array arr -> pure $ foldr (Pair . unsafeFromJSON) Nil $ toList arr
     A.Object obj -> Dict <$> A.parseJSON (A.Object obj)
+
+showConstr :: Value -> String
+showConstr = \case
+  Number _ -> "number"
+  Float _ -> "float"
+  String _ -> "string"
+  Name _ -> "name"
+  Function _ -> "function"
+  Macros _ -> "macros"
+  Pair _ _ -> "list"
+  Nil -> "()"
+  Dict _ -> "dict"
+  External _ -> "external"
