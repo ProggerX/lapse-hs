@@ -21,6 +21,12 @@ stringToken (c : cs) cur = case c of
       )
   _ -> stringToken cs (cur ++ [c])
 
+compactLambda :: String -> String -> (String, String)
+compactLambda [] _ = error "Tokenize error in compactLambda"
+compactLambda (c : cs) cur = case c of
+  '}' -> (('{' : cur) ++ ['}'], cs)
+  _ -> compactLambda cs (cur ++ [c])
+
 tokenize' :: String -> [String] -> String -> [String]
 tokenize' cur tokens (c : cs) = case c of
   '(' -> tokenize' "" ("(" : add' cur tokens) cs
@@ -30,6 +36,11 @@ tokenize' cur tokens (c : cs) = case c of
   '"' -> tokenize' "" newTokens newCs
    where
     new = stringToken cs ""
+    newTokens = fst new : tokens
+    newCs = snd new
+  '{' -> tokenize' "" newTokens newCs
+   where
+    new = compactLambda cs ""
     newTokens = fst new : tokens
     newCs = snd new
   _ ->
@@ -67,6 +78,9 @@ endsWith = (==) . last
 isString :: String -> Bool
 isString t = (t `endsWith` '"') && (t `startsWith` '"')
 
+isCompactLambda :: String -> Bool
+isCompactLambda t = (t `endsWith` '}') && (t `startsWith` '{')
+
 trim :: String -> String
 trim = init . tail
 
@@ -75,6 +89,7 @@ parseToken t
   | all (\c -> isDigit c || c == '-') t && t /= "-" = Number $ read t
   | all (\c -> isDigit c || c == '-' || c == '.') t && t /= "-" && t /= "." = Float $ read t
   | isString t = String $ trim t
+  | isCompactLambda t = Pair (Name "compact") (head $ parse $ "(" <> trim t <> ")")
   | otherwise = Name t
 
 parse' :: [Value] -> [String] -> Value

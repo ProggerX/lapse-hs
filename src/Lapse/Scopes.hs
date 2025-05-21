@@ -32,5 +32,14 @@ getValue' k (s : ss) = case s !? k of
   Just x -> x
 getValue' k [] = error $ "getValue: no such key: " ++ k ++ "!"
 
+getValueM' :: String -> Scopes -> Maybe Value
+getValueM' k (s : ss) = case s !? k of
+  Nothing -> getValueM' k ss
+  Just x -> Just x
+getValueM' _ [] = Nothing
+
 getValue :: String -> LapseM Value
 getValue = gets . getValue'
+
+getValueM :: String -> LapseM (Maybe Value)
+getValueM = gets . getValueM'

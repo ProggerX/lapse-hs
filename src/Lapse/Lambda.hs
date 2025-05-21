@@ -1,10 +1,14 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Lapse.Lambda where
 
 import Control.Monad ((<=<))
 import Control.Monad.State (get, gets, put)
+import Data.List (sort)
 import Data.Map.Strict (empty, fromList)
 import Lapse.Eval (eval)
 import Lapse.Operators (lset)
+import Lapse.Scopes (getValueM)
 import Lapse.Types (Func, LapseM, Scopes, Value (..))
 
 data UnList m = Proper [Value] | Improper ([Value], Value) | Single Value deriving (Show)
@@ -77,3 +81,18 @@ macro _ = error "Wrong macro expression"
 defmacro :: Func
 defmacro (Pair (Name fname) ls@(Pair _ (Pair _ Nil))) = macro ls >>= \x -> lset (Pair (Name fname) (Pair x Nil))
 defmacro _ = error "Wrong defmacro expression"
+
+findFree :: Value -> LapseM [String]
+findFree = \case
+  Name x ->
+    getValueM x >>= \case
+      Just _ -> pure []
+      Nothing -> pure [x]
+  Pair x y -> concat <$> sequence [findFree x, findFree y]
+  _ -> pure []
+
+compact :: Func
+compact v = do
+  freeVars <- sort <$> findFree v
+  let args = foldr (Pair . Name) Nil freeVars
+  Function <$> mkFunction args v

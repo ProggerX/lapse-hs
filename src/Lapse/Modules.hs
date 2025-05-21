@@ -9,7 +9,7 @@ import Data.ByteString.Char8 qualified as BC
 import Data.FileEmbed (embedFileRelative)
 import Data.Map.Strict (Map, empty, fromList, (!?))
 import Lapse.Eval (eval)
-import Lapse.Lambda (define, defmacro, lambda, macro)
+import Lapse.Lambda (compact, define, defmacro, lambda, macro)
 import Lapse.Modules.FS qualified as FS
 import Lapse.Modules.Json qualified as Json
 import Lapse.Modules.Web qualified as Web
@@ -63,6 +63,7 @@ std =
     , ("float", Function lflt)
     , ("floor", Function lfloor)
     , ("throw", Function lthr)
+    , ("compact", Macros compact)
     ]
 
 io :: Scope
