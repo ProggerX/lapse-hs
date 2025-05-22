@@ -4,7 +4,7 @@ module Lapse.Lambda where
 
 import Control.Monad ((<=<))
 import Control.Monad.State (get, gets, put)
-import Data.List (sort)
+import Data.List (group, sort)
 import Data.Map.Strict (empty, fromList)
 import Lapse.Eval (eval)
 import Lapse.Operators (lset)
@@ -93,6 +93,6 @@ findFree = \case
 
 compact :: Func
 compact v = do
-  freeVars <- sort <$> findFree v
+  freeVars <- (map head . group) . sort <$> findFree v
   let args = foldr (Pair . Name) Nil freeVars
   Function <$> mkFunction args v
