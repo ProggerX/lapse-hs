@@ -21,26 +21,17 @@ stringToken (c : cs) cur = case c of
       )
   _ -> stringToken cs (cur ++ [c])
 
-compactLambda :: String -> String -> (String, String)
-compactLambda [] _ = error "Tokenize error in compactLambda"
-compactLambda (c : cs) cur = case c of
-  '}' -> (('{' : cur) ++ ['}'], cs)
-  _ -> compactLambda cs (cur ++ [c])
-
 tokenize' :: String -> [String] -> String -> [String]
 tokenize' cur tokens (c : cs) = case c of
   '(' -> tokenize' "" ("(" : add' cur tokens) cs
   ')' -> tokenize' "" (")" : add' cur tokens) cs
+  '{' -> tokenize' "" ("{" : add' cur tokens) cs
+  '}' -> tokenize' "" ("}" : add' cur tokens) cs
   '\'' -> tokenize' "" ("'" : add' cur tokens) cs
   ',' -> tokenize' "" ("," : add' cur tokens) cs
   '"' -> tokenize' "" newTokens newCs
    where
     new = stringToken cs ""
-    newTokens = fst new : tokens
-    newCs = snd new
-  '{' -> tokenize' "" newTokens newCs
-   where
-    new = compactLambda cs ""
     newTokens = fst new : tokens
     newCs = snd new
   _ ->
@@ -98,6 +89,11 @@ parse' stack (t : ts) = case t of
   "(" -> parse' (Pair (head stack) (head tl) : tail tl) ts
    where
     tl = tail stack
+  "}" -> parse' (Nil : stack) ts
+  "{" ->
+    let h = head stack
+        tl = tail stack
+     in parse' (Pair (Name "compact") h : tl) ("(" : ts)
   "," ->
     let h = head stack
         el = fst'' h
