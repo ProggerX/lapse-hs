@@ -2,6 +2,7 @@
 This is Lapse (my Lisp dialect) interpreter.
 
 Examples: [here](https://github.com/ProggerX/lapse-hs/blob/master/example/)
+Documentation (not full): [here](https://lapse.bald.su/)
 
 ## How to use this/try this
 - Go to [this page](https://github.com/ProggerX/lapse-hs/actions/workflows/build.yml)
