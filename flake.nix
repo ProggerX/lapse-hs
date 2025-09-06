@@ -16,9 +16,11 @@
           returnShellEnv = isShell;
           modifier =
             drv:
-            pkgs.haskell.lib.addBuildTools drv [
-              pkgs.mkdocs
-            ];
+            pkgs.haskell.lib.addBuildTools drv (with pkgs; [
+              mkdocs
+              haskell-language-server
+              cabal-install
+            ]);
         };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {

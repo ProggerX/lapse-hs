@@ -11,7 +11,11 @@ import Lapse.Operators (lset)
 import Lapse.Scopes (getValueM)
 import Lapse.Types (Func, LapseM, Scopes, Value (..))
 
-data UnList m = Proper [Value] | Improper ([Value], Value) | Single Value deriving (Show)
+data UnList m
+  = Proper [Value]
+  | Improper ([Value], Value)
+  | Single Value
+  deriving (Show)
 
 unList :: Value -> UnList m
 unList Nil = Proper []

@@ -92,7 +92,11 @@ surround s = "(" ++ s ++ ")"
 
 type LapseM = StateT Scopes (StateT Int IO)
 
-data UnList = Proper [Value] | Improper ([Value], Value) | Single Value deriving (Show)
+data UnList
+  = Proper [Value]
+  | Improper ([Value], Value)
+  | Single Value
+  deriving (Show)
 
 unList :: Value -> UnList
 unList Nil = Proper []
